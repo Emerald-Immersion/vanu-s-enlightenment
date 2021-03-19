@@ -1,0 +1,126 @@
+module.exports = {
+    name: 'lieutenant-certs',
+    args: true,
+    guildOnly: false,
+    aliases: ['l-certs', 'lcerts', 'lieutenantcerts'],
+    help: '!lieutenant-certs <username>; Shows all missing lieutenant certs for a player. Aliases: !l-certs, !lcerts, !lieutenantcerts. DM', // Help information to show
+    restricted: [], // Options: discord ID, role ID, role Name
+    execute(message, args, config) {
+        /*
+		* Checks whether a character has unlocked the items in 'item_requirements' & the skills in skill_requirements
+		* opens an alert to show which are missing.
+		*
+		* Elements in item_requirements muse have an 'id' and 'name' field.
+		* 'id' must be either string containing the Census API's item id for that requirment or
+		* an array of such strings which, any of which must be present in order to pass the requirement check.
+		*
+		* 'name' will be displayed to the user when the corresponding requirement check fails.
+		* make it sifficiently descriptive so the user can understand what's missing & how to fulfuil that requirement
+		*
+		* An optional 'func' field can be added, this is a function with 1 argument which will be run on the
+		* item object returned from the api.  Use this to implement unique checks for partucular items.
+		*
+		* Notes:
+		* For getting item id's for Vehicle Utility/Defense/Performance slots:
+		* http://census.daybreakgames.com/s:example/get/ps2:v2/item?name.en=*Hover&c:limit=5000&c:exactMatchFirst=true&c:lang=en&c:show=name.en,item_id&c:join=vehicle_attachment^on:item_id^hide:item_id^list:1^term:faction_id=1
+		* for infantry slots use item -> item_profile -> profile to work out which class an item pertains to.
+		* for vehicle weapons, use item -> item_category to work out which slot a weapon goes in.
+		*/
+
+        const axios = require('axios');
+
+        const service_id = config.dbg_api.service_id;
+
+
+        const item_requirements = require('../js/lieutenant_item_requirement.js');
+
+
+        const skill_requirements = [
+            { 'id': '2203', 'name': 'Anti-Infantry MANA Turret 5 (Engineer Passive Systems)' },
+        ];
+
+        async function getRequest(URL) {
+            return await axios.get(URL).catch(error => console.log(error));
+        }
+
+        async function get_character_missing_requirements(character_name) {
+            const url = `http://census.daybreakgames.com/s:${service_id}/get/ps2:v2/character${encodeURIComponent('?name.first=' + character_name)}&c:case=false&c:exactMatchFirst=true&c:lang=en&c:show=character_id${encodeURIComponent('&c:join=characters_item^on:character_id^list:1^inject_at:items')}${encodeURIComponent('&c:join=characters_skill^on:character_id^list:1^inject_at:skills')}`;
+
+            const resp_json = (await getRequest(url)).data;
+
+            if (resp_json.character_list.length > 0) {
+                const items = resp_json.character_list[0].items;
+                const skills = resp_json.character_list[0].skills;
+
+                if (items.length === 0 || skills.length === 0) {
+                    console.warn('Character has no items/skills:\n\n' + resp_json);
+                }
+
+                let missing_reqs = [];
+                missing_reqs = missing_reqs.concat(get_missing_requirements(item_requirements, items, 'item_id'));
+                missing_reqs = missing_reqs.concat(get_missing_requirements(skill_requirements, skills, 'skill_id'));
+
+                return missing_reqs;
+            }
+            else {
+                throw 'Couldnt find ' + character_name;
+            }
+        }
+
+
+        // requiements - The requirement to check agains (must include an 'id'field)
+        // List - the list to look for the requirement id in.
+        // Field - (Hack) the name of the field in the API object to check the id against
+        // (item_id for items. skill_id for skills)
+        function get_missing_requirements(requirements, list, field) {
+            const missing_reqs = [];
+
+            requirements.forEach((req) => {
+                let char_item = undefined;
+                if (Array.isArray(req.id)) {
+                    char_item = list.find(e => typeof req.id.find(ie => ie === e[field]) !== 'undefined');
+                }
+                else {
+                    char_item = list.find(e => e[field] === req.id);
+                }
+
+                if (typeof char_item === 'undefined' || (typeof req.func !== 'undefined' && !req.func(char_item))) {
+                    missing_reqs.push(req);
+                }
+            });
+
+
+            return missing_reqs;
+        }
+        async function respond() {
+            const missing_certs = await get_character_missing_requirements(args[0]);
+            let res1 = `__Missing lieutenant certifications for ${args[0]}:__`;
+            let res2 = '';
+            if (missing_certs.length == 0) return message.channel.send(`There are no missing lieutenant certifications for ${args[0]} or something went wrong`);
+
+            missing_certs.forEach(element => {
+                if (res1.length < 2000) {
+                    res1 += `\n\`\`${element.name}\`\``;
+                }
+                else {
+                    res2 += `\n\`\`${element.name}\`\``;
+                }
+            });
+
+            const missing_amount = `\n**${missing_certs.length} missing**`;
+            if (res2 == '' && res1.length < 2000) {
+                res1 += missing_amount;
+            }
+            else {
+                res2 += missing_amount;
+            }
+
+            message.channel.send(res1);
+            if (res2 == '') return;
+            message.channel.send(res2);
+        }
+        message.channel.startTyping();
+        respond();
+        message.channel.stopTyping();
+    },
+};
