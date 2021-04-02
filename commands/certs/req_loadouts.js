@@ -1,24 +1,26 @@
-class req_loadout {
+module.exports = {
     // List of loadouts
     // For example: MAX and common pool
-    list = [
+    list: [
         {
             id: 0,
             loadout_category_id: 0,
-            cert_group_id: [0, 1],
-            name: 'MAX'
+            name: 'MAX',
         },
         {
             id: 1,
             loadout_category_id: 0,
-            cert_group_id: [0, 1],
-            name: 'Common pool'
+            name: 'Common pool',
         },
         {
             id: 2,
-            loadout_category_id: 0,
-            cert_group_id: [0, 1],
-            name: 'Engineer Infantry'
-        }
-    ];
-}
+            loadout_category_id: 1,
+            name: 'Engineer Infantry',
+        },
+        {
+            id: 3,
+            loadout_category_id: 3,
+            name: 'Engineer Air',
+        },
+    ],
+};

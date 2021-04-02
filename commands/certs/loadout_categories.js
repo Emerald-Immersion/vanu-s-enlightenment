@@ -1,14 +1,22 @@
-class loadout_category {
+module.exports = {
     // List of loadout categories
     // Examples: class certs, vehicle certs
-    list = [
+    list: [
         {
             id: 0,
-            name: 'Infantry certifications'
+            name: 'Infantry certifications',
         },
         {
             id: 1,
-            name: 'Vehicle certifications'
-        }
-    ]
-}
+            name: 'Vehicle certifications',
+        },
+        {
+            id: 2,
+            name: 'Air certifications',
+        },
+        {
+            id: 3,
+            name: 'Test certifications',
+        },
+    ],
+};
