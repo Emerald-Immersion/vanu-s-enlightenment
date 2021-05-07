@@ -4,36 +4,39 @@ module.exports = {
     list: [
         {
             id: 0,
-            name: 'Chosen',
+            name: 'Devoted',
             requirements: {
-                time_in_outfit: 7776000000, // 90 days
-                time_in_outfit_readable: '90 days',
+                time_in_outfit: 2592000000, // 30 days in miliseconds
+                time_in_outfit_readable: '30 days',
                 loadout_categories: [0, 1, 2],
                 categories: [
                     {
                         id: 0,
-                        cat_id: [0], // Infantry certs
-                        amount: 2,
-                        name: (category) => `Choose ${category.amount} loadouts from infantry certifications`,
+                        cat_id: [3], // Devoted rank loadouts (medic)
+                        amount: 1,
+                        name: 'Devoted rank certifications',
+                        description: () => 'This rank requires the following loadou:',
                     },
                     {
                         id: 1,
-                        cat_id: [1, 2], // Vehicle certs
-                        amount: 3,
-                        name: (category) => `Mix and match ${category.amount} loadouts from infantry and air certifications`,
+                        cat_id: [0], // Infantry
+                        amount: 1,
+                        name: 'Infantry certifications',
+                        description: (category) => `Choose ${category.amount} loadout`,
                     },
-                ],
-            },
-        },
-        {
-            id: 1,
-            name: 'Devoted',
-            requirements: {
-                time_in_outfit: 2592000, // 30 days
-                categories: [
                     {
-                        cat_id: [0, 1], // Infantry and vehicle certs grouped
-                        amount: 5,
+                        id: 2,
+                        cat_id: [1], // Vehicle
+                        amount: 1,
+                        name: 'Vehicle certifications',
+                        description: (category) => `Choose ${category.amount} loadout`,
+                    },
+                    {
+                        id: 2,
+                        cat_id: [2], // Air
+                        amount: 0,
+                        name: 'Air certifications',
+                        description: (category) => `Choose ${category.amount} loadout`,
                     },
                 ],
             },

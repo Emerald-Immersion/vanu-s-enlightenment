@@ -21,6 +21,7 @@
     "ws": "^7.2.3"
   },
   "devDependencies": {
+    "acorn": "^8.1.0",
     "eslint": "^6.8.0"
   },
   "scripts": {

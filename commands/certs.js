@@ -91,12 +91,13 @@ class requirement_obj {
 
         for (const group_cat_index in this.static.cert_group.requirements.categories) {
             const group_cat = this.static.cert_group.requirements.categories[group_cat_index];
-            message.push(`**${group_cat.name(group_cat)}**:`);
+            message.push(`**${group_cat.description(group_cat)}**:`);
+            let finished_loadouts = 0;
+            let loadouts = 0;
 
             for (const loadout_cat_index in this.categories) {
                 const cat = this.categories[loadout_cat_index];
                 if (!group_cat.cat_id.includes(cat.id)) continue;
-                let finished_loadouts = 0;
                 message.push(`**${cat.name}**:`);
 
                 for (const loadout_index in cat.loadouts) {
@@ -105,6 +106,7 @@ class requirement_obj {
                     message.push(`__${loadout.name}__:`);
 
                     for (const req_index in loadout.requirements) {
+                        loadouts++;
                         const req = loadout.requirements[req_index];
                         const req_id = req.id;
 
@@ -129,11 +131,11 @@ class requirement_obj {
                     }
                     message = message.concat(requirement_msg);
                 }
-                // Under title show category progress ✅ if finished, otherwise `finished/total`
-                const array_index = 1 + Number(loadout_cat_index);
-                message.splice(array_index, 0, `*${cat.name}*: ${finished_loadouts}/${cat.loadouts.length} finished`);
                 // if (this.categories.length == array_index) message.splice(array_index + 1, 0, '');
             }
+            // Under title show category progress ✅ if finished, otherwise `finished/total`
+            const array_index = 1 + Number(group_cat_index);
+            message.splice(array_index, 0, `*${group_cat.name}*: ${finished_loadouts}/${loadouts} finished`);
             message.push('');
         }
         this.message = message.join('\n');

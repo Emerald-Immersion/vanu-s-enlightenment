@@ -16,7 +16,7 @@ module.exports = {
         },
         {
             id: 3,
-            name: 'Test certifications',
+            name: 'Devoted certifications',
         },
     ],
 };

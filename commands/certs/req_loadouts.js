@@ -5,22 +5,42 @@ module.exports = {
         {
             id: 0,
             loadout_category_id: 0,
-            name: 'MAX',
+            name: 'Infiltrator',
         },
         {
             id: 1,
             loadout_category_id: 0,
-            name: 'Common pool',
+            name: 'Light Assault',
         },
         {
             id: 2,
-            loadout_category_id: 1,
-            name: 'Engineer Infantry',
+            loadout_category_id: 0,
+            name: 'Combat Medic',
         },
         {
             id: 3,
+            loadout_category_id: 0,
+            name: 'Engineer - Point Hold',
+        },
+        {
+            id: 4,
+            loadout_category_id: 0,
+            name: 'Engineer - Science',
+        },
+        {
+            id: 5,
+            loadout_category_id: 0,
+            name: 'Heavy Assault',
+        },
+        {
+            id: 6,
+            loadout_category_id: 0,
+            name: 'MAX',
+        },
+        {
+            id: 7,
             loadout_category_id: 3,
-            name: 'Engineer Air',
+            name: 'Combat Medic',
         },
     ],
 };
