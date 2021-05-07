@@ -5,7 +5,9 @@ module.exports = {
         const Discord = require('discord.js');
         const channel = await client.channels.cache.get(args.channel_id);
         const message = await channel.messages.fetch(args.message_id);
-        const roles = args.roles.map(role => message.guild.roles.cache.find(grole => grole.id == role));
+        const roles = args.roles.map(role => {
+            return { role: message.guild.roles.cache.find(grole => grole.id == role.role), description: role.description };
+        });
         const guild = message.guild;
 
         const emoji = ['683285044345045010', '683285044416217148', '683285045540159491', '683285051970289808', '683285051928215565', '683285049595920385', '683285084320694302', '683285084463431720', '683285085818191976', '699909620495548497', '701006810169081936', '722814368022134790', '722814368286244924', '722814368366067792', '722814368370130964', '722816185606864896', '722816749707198574'];
@@ -23,7 +25,7 @@ module.exports = {
             if (emoji_index == -1) return;
 
             // Add or remove role
-            guild_user.roles[action](roles[emoji_index]);
+            guild_user.roles[action](roles[emoji_index].role);
         }
 
         function reactionFilter(reaction, user) {
@@ -38,7 +40,7 @@ module.exports = {
         const description = [];
         for (const index in roles) {
             const role_emoji = client.emojis.cache.get(emoji[index]);
-            description.push(`${role_emoji} : ${roles[index]}`);
+            description.push(`${role_emoji} : ${roles[index].role} ${roles[index].description}`);
             await message.react(role_emoji);
         }
 
