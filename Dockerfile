@@ -4,7 +4,7 @@ FROM node:14
 WORKDIR /usr/src/app
 
 ADD package*.json /tmp/
-RUN cd /tmp && npm ci
+RUN cd /tmp && npm install
 RUN cp -a /tmp/node_modules /usr/src/app
 
 COPY . .
