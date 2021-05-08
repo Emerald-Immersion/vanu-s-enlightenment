@@ -40,7 +40,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: emeraldimmersion/vanusenlightenment:latest
+          tags: emerald-immersion/vanu-s-enlightenment:latest
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
