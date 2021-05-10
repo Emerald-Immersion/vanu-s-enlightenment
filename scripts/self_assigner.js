@@ -40,7 +40,10 @@ module.exports = {
         const description = [];
         for (const index in roles) {
             const role_emoji = client.emojis.cache.get(emoji[index]);
-            description.push(`${role_emoji} : ${roles[index].role} ${roles[index].description}`);
+
+            let role_desc = `${role_emoji} : ${roles[index].role}`;
+            if (roles[index]?.description) role_desc += ` ${roles[index].description}`;
+            description.push(role_desc);
             await message.react(role_emoji);
         }
 
