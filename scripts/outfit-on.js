@@ -50,9 +50,9 @@ module.exports = {
             const ranks = ['rank_ordinal_0', 'rank_ordinal_1', 'rank_ordinal_2', 'rank_ordinal_3', 'rank_ordinal_4', 'rank_ordinal_5', 'rank_ordinal_6', 'rank_ordinal_7', 'rank_ordinal_8'];
             const query_values = ranks.map((v, i) => online_members.filter(va => va.rank_ordinal == i).length);
             query_values.push(outfit.outfit_id);
-	    db_conn.query(`INSERT INTO outfit_on (${ranks.join(', ')}, outfit_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, query_values);
-	    db_conn.end();
-	};
+            db_conn.query(`INSERT INTO outfit_on (${ranks.join(', ')}, outfit_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, query_values);
+            db_conn.end();
+        }
 
         async function messageUpdaterCensus() {
             console.log('updating online players');
@@ -156,7 +156,7 @@ module.exports = {
 
             const battle_rank = charactersWhitespaces(undefined, member.character.battle_rank.value.length + 29, member.character.battle_rank.value);
             const member_name = charactersWhitespaces(member.character.name.first, member.character.name.first.length);
-            return `\`\`${member_name}\`\` ${prestige_emoji}\`\`${battle_rank}\`\` ${class_emoji} Rank: ${member.rank}`;
+            return `\`${member_name}\` ${prestige_emoji}\`${battle_rank}\` ${class_emoji} Rank: ${member.rank}`;
         }
 
         function charactersWhitespaces(str_front, char_length, str_back) {
