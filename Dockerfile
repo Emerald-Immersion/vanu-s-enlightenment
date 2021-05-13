@@ -1,11 +1,17 @@
-FROM node:14
+FROM node:14-alpine
 
 # Create app directory
 WORKDIR /usr/src/app
-RUN apt update -y && apt install -y build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev
+RUN apk add --update --no-cache \
+    make \
+    g++ \
+    jpeg-dev \
+    cairo-dev \
+    giflib-dev \
+    pango-dev
 
 ADD package*.json /tmp/
-RUN cd /tmp && npm install
+RUN cd /tmp && npm ci
 RUN cp -a /tmp/node_modules /usr/src/app
 
 COPY . .
