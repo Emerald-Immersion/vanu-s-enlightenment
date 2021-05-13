@@ -42,6 +42,7 @@ jobs:
           echo "Status:    ${{ steps.buildx.outputs.status }}"
           echo "Flags:     ${{ steps.buildx.outputs.flags }}"
           echo "Platforms: ${{ steps.buildx.outputs.platforms }}"
+          echo "Docker PS ${{ sudo docker ps }}"
       - name: Login to Github Container Registry
         uses: docker/login-action@v1 
         with:
