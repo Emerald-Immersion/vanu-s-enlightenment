@@ -43,8 +43,8 @@ jobs:
           echo "Flags:     ${{ steps.buildx.outputs.flags }}"
           echo "Platforms: ${{ steps.buildx.outputs.platforms }}"
       
-      - name: Inspect docker
-        run: sudo docker ps && cat /etc/os-release && sudo docker exec -u root $(sudo docker ps -q) apt update -y && apt install -y build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev
+      # - name: Inspect docker
+      #   run: sudo docker ps && cat /etc/os-release && sudo docker exec -u root $(sudo docker ps -q) apt update -y && apt install -y build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev
       - name: Login to Github Container Registry
         uses: docker/login-action@v1 
         with:
