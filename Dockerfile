@@ -1,4 +1,4 @@
-FROM node:14-alpine
+FROM node:14-alpine as builder
 
 # Create app directory
 WORKDIR /usr/src/app
@@ -14,6 +14,11 @@ ADD package*.json /tmp/
 RUN cd /tmp && npm ci
 RUN cp -a /tmp/node_modules /usr/src/app
 
-COPY . .
+FROM node:14-alpine as app
+
+## Copy built node modules and binaries without including the toolchain
+COPY --from=builder /usr/src/app/node_modules .
+
+COPY . /usr/src/app
 
 CMD [ "node", "index.js" ]
