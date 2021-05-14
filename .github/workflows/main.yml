@@ -44,6 +44,6 @@ jobs:
         with:
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: emeraldimmersion/vanu-s-enlightenment:${GITHUB_REF##*/}
+          tags: emeraldimmersion/vanu-s-enlightenment:${{ github.ref }}
           cache-from: type=registry,ref=emeraldimmersion/vanu-s-enlightenment:latest
           cache-to: type=inline
