@@ -73,7 +73,7 @@ module.exports = {
         function setCheckDate() {
             const d = Date.now();
             lastCheckDate = d;
-            fs.writeFileSync('./txt/ps2news_lastcheckdate.txt', d);
+            fs.writeFileSync('./txt/ps2news_lastcheckdate.txt', JSON.stringify(d));
         }
 
         async function checkNews(URL, type) {
