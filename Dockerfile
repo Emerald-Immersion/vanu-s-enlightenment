@@ -15,6 +15,7 @@ RUN cd /tmp && npm ci
 RUN cp -a /tmp/node_modules /usr/src/app
 
 FROM node:14-alpine as app
+WORKDIR /usr/src/app
 
 ## Copy built node modules and binaries without including the toolchain
 COPY --from=builder /usr/src/app/node_modules .
