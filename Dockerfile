@@ -12,7 +12,7 @@ RUN apk add --update --no-cache \
 
 ADD package*.json /tmp/
 RUN cd /tmp && npm ci
-RUN cp -a /tmp/node_modules /usr/src/app
+RUN cp -a /tmp/node_modules /usr/src/app/node_modules
 
 FROM node:14-alpine as app
 WORKDIR /usr/src/app
