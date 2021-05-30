@@ -15,7 +15,8 @@
     "discord.js": "^12.5.1",
     "jsonpath-plus": "^1.1.0",
     "mariadb": "^2.4.0",
-    "node-ical": "^0.12.2",
+    "rrule": "^2.6.8",
+    "ical": "^0.8.0",
     "rss-parser": "^3.7.5",
     "utf-8-validate": "^5.0.2",
     "ws": "^7.2.3"
