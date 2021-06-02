@@ -125,48 +125,56 @@ module.exports = {
         // ics - string url of the calendar's ics
         // calendar_link - optional string url to the calendar
         // events_window - How many days ahead should we show events for
+        async function main() {
+            const channelId = autostart.args[0].channel_id;
+            const icsUrl = autostart.args[0].ics;
+            const calendarUrl = autostart.args[0].calendar_url;
+            const eventsWindow = autostart.args[0].events_window || 7;
 
-        const channelId = autostart.args[0].channel_id;
-        const icsUrl = autostart.args[0].ics;
-        const calendarUrl = autostart.args[0].calendar_url;
-        const eventsWindow = autostart.args[0].events_window || 7;
+            const channel = await client.channels.fetch(channelId);
+            const today = startOfDay(new Date());
+            const end = new Date(today.getTime() + eventsWindow * 24 * 60 * 60 * 1000);
 
-        const channel = await client.channels.fetch(channelId);
-        const today = startOfDay(new Date());
-        const end = new Date(today.getTime() + eventsWindow * 24 * 60 * 60 * 1000);
-
-        if (!channel) {
-            console.error(`Calendar: Couldn't get channel ${channelId}`);
-            return;
-        }
-
-        channel.startTyping();
-
-        try {
-            // Fetch Calendar
-            const calResp = await axios.get(icsUrl);
-            if (calResp.status !== 200) {
-                console.error(`Calendar: Failed to get calendar. Code: ${calResp.status} ics:${icsUrl}`);
+            if (!channel) {
+                console.error(`Calendar: Couldn't get channel ${channelId}`);
                 return;
             }
 
-            // Parse and Sort (Closest event first)
-            const calendar = new Calendar(ical.parseICS(calResp.data));
-            const events = calendar.eventsBetween(today, end)
-                .sort((e1, e2) => new Date(e1.end).getTime() - new Date(e2.start).getTime());
+            channel.startTyping();
 
-            // Clear old Messages
-            await clearChannel(client, channelId);
+            try {
+                // Fetch Calendar
+                const calResp = await axios.get(icsUrl);
+                if (calResp.status !== 200) {
+                    console.error(`Calendar: Failed to get calendar. Code: ${calResp.status} ics:${icsUrl}`);
+                    return;
+                }
 
-            // Send Event Messages
-            events.forEach(event => {
-                const embed = createEmbed(event, calendarUrl);
-                channel.send('', embed);
-            });
+                // Parse and Sort (Closest event first)
+                const calendar = new Calendar(ical.parseICS(calResp.data));
+                const events = calendar.eventsBetween(today, end)
+                    .sort((e1, e2) => new Date(e1.end).getTime() - new Date(e2.start).getTime());
+
+                // Clear old Messages
+                await clearChannel(client, channelId);
+
+                // Send Event Messages
+                events.forEach(event => {
+                    const embed = createEmbed(event, calendarUrl);
+                    channel.send('', embed);
+                });
+            }
+            finally {
+                channel.stopTyping();
+            }
         }
-        finally {
-            channel.stopTyping();
-        }
+
+        // Run main script
+        main();
+        const loop = setInterval(main, autostart.interval);
+
+        // Exit script after 24 hours for a restart
+        setTimeout(() => clearInterval(loop), 86400000);
     },
 };
 
@@ -279,13 +287,14 @@ async function clearChannel(client, channelID) {
     // NB: Will fail if there's any messages older than 2 weeks.
     let messages;
     do {
-        messages = await channel.messages.fetch({ limit: 100 });
+        messages = (await channel.messages.fetch({ limit: 100 })).filter(m => m.author.id == client.user.id);
         if (messages.size >= 2) {
             await channel.bulkDelete(messages);
         }
         else if (messages.size === 1) {
             await messages.first().delete();
         }
+        debugger
     } while (messages.size > 0);
 }
 
