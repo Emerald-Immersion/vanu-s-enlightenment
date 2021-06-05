@@ -161,7 +161,10 @@ module.exports = {
                 // Send Event Messages
                 events.forEach(event => {
                     const embed = createEmbed(event, calendarUrl);
-                    channel.send('', embed);
+                    channel.send(embed).catch(err => {
+                        console.error(err);
+                        console.log(embed);
+                    });
                 });
             }
             finally {
@@ -265,7 +268,7 @@ function createEmbed(event, url) {
         event.summary = 'Untitled';
     }
     if (!event.description) {
-        event.description = ' ';
+        event.description = '‏‏‎ ';
     }
 
     return new Discord.MessageEmbed()
@@ -285,17 +288,11 @@ async function clearChannel(client, channelID) {
     const channel = await client.channels.fetch(channelID);
 
     // NB: Will fail if there's any messages older than 2 weeks.
-    let messages;
-    do {
-        messages = (await channel.messages.fetch({ limit: 100 })).filter(m => m.author.id == client.user.id);
-        if (messages.size >= 2) {
-            await channel.bulkDelete(messages);
-        }
-        else if (messages.size === 1) {
-            await messages.first().delete();
-        }
-        debugger
-    } while (messages.size > 0);
+    const messages = (await channel.messages.fetch({ limit: 100 }));
+    const toDelete = messages.filter(m => m.author.id == client.user.id);
+    for (const msg of toDelete) {
+        msg[1].delete();
+    }
 }
 
 // iCal provides start and end date as JS Date objects
