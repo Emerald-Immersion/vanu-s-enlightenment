@@ -4,7 +4,7 @@
   "description": "This is a discord bot written in node.js with the use of discord.js. Originally made for the Emerald Immersion discord server. It is used to get online players from the Emerald Immersion outfit on Miller (game: Planetside 2, a.k.a: Awesomeside 2).",
   "main": "Vanu-Enlightenment",
   "engines": {
-    "node": "12.16.2",
+    "node": "14.16.1",
     "npm": "*"
   },
   "dependencies": {
@@ -26,6 +26,7 @@
     "eslint": "^6.8.0"
   },
   "scripts": {
+    "test": "node --inspect index.js",
     "start": "node index.js",
     "indev": "node index.js indev"
   },
