@@ -83,7 +83,8 @@ class CalendarTimeZoneManager {
 
         const offset = this.findDaylightSavingOffset(tzid, when);
 
-        return new Date(caltime.toUTCString() + offset);
+        const utcString = new Date(Date.UTC(caltime.getFullYear(), caltime.getMonth(), caltime.getDate(), caltime.getHours(), caltime.getMinutes(), caltime.getSeconds(), caltime.getMilliseconds())).toUTCString();
+        return new Date(utcString + offset);
     }
 }
 
