@@ -76,7 +76,9 @@ class CalendarTimeZoneManager {
 
     localiseTime(caltime, tzid, when) {
         if (!tzid) {
-            return caltime;
+            // Where there's no tzid, the caltime must be either a UTC time or a 'floating time'
+            // We can't display floating times on discord, so we'll pretend it's a UTC time.
+            return new Date(caltime.getUTCFullYear(), caltime.getUTCMonth(), caltime.getUTCDate(), caltime.getUTCHours(), caltime.getUTCMinutes(), caltime.getUTCSeconds(), caltime.getUTCMilliseconds());
         }
 
         const offset = this.findDaylightSavingOffset(tzid, when);
