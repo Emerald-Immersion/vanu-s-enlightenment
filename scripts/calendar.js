@@ -290,12 +290,10 @@ function startOfDay(date) {
 async function clearChannel(client, channelID) {
     const channel = await client.channels.fetch(channelID);
 
-    // NB: Will fail if there's any messages older than 2 weeks.
     const messages = (await channel.messages.fetch({ limit: 100 }));
     const toDelete = messages.filter(m => m.author.id == client.user.id);
-    for (const msg of toDelete) {
-        msg[1].delete();
-    }
+    const deleteActions = toDelete.map(msg => msg.delete());
+    return Promise.all(deleteActions);
 }
 
 // iCal provides start and end date as JS Date objects
