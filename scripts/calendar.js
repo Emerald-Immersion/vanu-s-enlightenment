@@ -289,11 +289,20 @@ function startOfDay(date) {
 // Deletes all messages in a channel.
 async function clearChannel(client, channelID) {
     const channel = await client.channels.fetch(channelID);
+    const canManageMessages = channel.guild.me.permissionsIn(channel).has('MANAGE_MESSAGES');
 
     const messages = (await channel.messages.fetch({ limit: 100 }));
-    const toDelete = messages.filter(m => m.author.id == client.user.id);
-    const deleteActions = toDelete.map(msg => msg.delete());
-    return Promise.all(deleteActions);
+    const toDelete = messages.filter(m => m.author.id === client.user.id);
+
+    const now = new Date().getTime();
+    const anyOlderThan2Weeks = msgs => msgs.some(msg => now - msg.createdTimestamp >= 2 * 7 * 24 * 60 * 60 * 1000);
+
+    if (canManageMessages && toDelete.size <= 100 && toDelete.size >= 2 && !anyOlderThan2Weeks(toDelete)) {
+        return channel.bulkDelete(toDelete);
+    }
+    else {
+        return Promise.all(toDelete.map(m => m.delete()));
+    }
 }
 
 // iCal provides start and end date as JS Date objects
