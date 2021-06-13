@@ -61,10 +61,12 @@ class CalendarTimeZoneManager {
         // Reduce all observances until we find the single one that we're currently in.
         const currentObservance =
             timezone.observances.reduce((acc, observance) => {
-                const end = observance.rule.after(now);
+                // Looking back in time, find when this observance last started.
+                const lastStart = observance.rule.before(now);
 
-                if (end && (!acc || end < acc.end)) {
-                    return { end: end, observance: observance };
+                // The tiemzone with the most recent start date which is in the past is the current timezone
+                if (lastStart && (!acc || lastStart > acc.start)) {
+                    return { start: lastStart, observance: observance };
                 }
                 else {
                     return acc;
@@ -82,9 +84,18 @@ class CalendarTimeZoneManager {
         }
 
         const offset = this.findDaylightSavingOffset(tzid, when);
+        const offsetSign = offset.substr(0, 1);
+        const offsetHours = Number(offsetSign + offset.substr(1, 2));
+        const offsetMins = Number(offsetSign + offset.substr(3, 2));
 
-        const utcString = new Date(Date.UTC(caltime.getFullYear(), caltime.getMonth(), caltime.getDate(), caltime.getHours(), caltime.getMinutes(), caltime.getSeconds(), caltime.getMilliseconds())).toUTCString();
-        return new Date(utcString + offset);
+        return new Date(caltime.getFullYear(),
+            caltime.getMonth(),
+            caltime.getDate(),
+            caltime.getHours() - +offsetHours,
+            caltime.getMinutes() - +offsetMins,
+            caltime.getSeconds(),
+            caltime.getMilliseconds(),
+        );
     }
 }
 
@@ -319,8 +330,7 @@ function DateTimeInTZ(date, tz) {
 // ie, if the event was created during winter time, but the recurrence happens in summer, we need to
 // offset the time accordingly.  This is due to a bug in the way the ical library creates RRules for events.
 function fromRRuleDate(date, tz, inTzDate) {
-    const newDate = new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(),
-        date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds(), date.getUTCMilliseconds());
+    const newDate = date;
     if (inTzDate) {
         newDate.inTzDate = inTzDate;
     }
