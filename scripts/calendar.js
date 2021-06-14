@@ -202,19 +202,19 @@ function getRecurringEvents(vevent, startDate, endDate) {
 
     const excludeDates = new Set(Object.values(vevent.exdate || [])
         // An array of Dates with a tz field.
-        .map(date => DateTimeInTZ(date, date.tz)));
+        .map(date => date.getTime()));
 
     // The dates returned by the rrule will be in the local timezone.
     // We're working in UTC, so attach the local timezone so that they
     // can be converted to UTC along with everything else.
     // An array of Date()s without a tz field, but in the dtstart's timezone
     const recurrenceDates = new Set(vevent.rrule.between(startDate, endDate, true)
-        .map(date => fromRRuleDate(date, vevent.start.tz, vevent.start))
-        .filter(e => !excludeDates.has(e)));
+        .filter(e => !excludeDates.has(e.getTime()))
+        .map(date => fromRRuleDate(date, vevent.start.tz, vevent.start)));
 
     for (const [d, event] of Object.entries(vevent.recurrences || [])) {
         const date = new Date(d);
-        if (date >= startDate && date <= endDate && !excludeDates.has(d)) {
+        if (date >= startDate && date <= endDate && !excludeDates.has(date.getTime())) {
             recurrenceDates.delete(d);
             recurrenceEvents.push(event);
         }
