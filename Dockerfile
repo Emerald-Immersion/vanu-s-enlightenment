@@ -8,7 +8,8 @@ RUN apk add --update --no-cache \
     jpeg-dev \
     cairo-dev \
     giflib-dev \
-    pango-dev
+    pango-dev \
+    ttf-liberation
 
 ADD package*.json /tmp/
 RUN cd /tmp && npm ci
