@@ -191,7 +191,7 @@ module.exports = {
         const loop = setInterval(main, autostart.interval);
 
         // Exit script after 24 hours for a restart
-        setTimeout(() => clearInterval(loop), 86400000);
+        setTimeout(() => clearInterval(loop), 86340000);
     },
 };
 
