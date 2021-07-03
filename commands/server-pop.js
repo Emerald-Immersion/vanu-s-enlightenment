@@ -1,5 +1,3 @@
-const { DiscordAPIError } = require('discord.js');
-
 module.exports = {
     name: 'server-pop',
     args: false,
@@ -15,13 +13,6 @@ module.exports = {
         const TR = client.emojis.cache.get('683285084463431720');
         const NC = client.emojis.cache.get('683285084320694302');
         const NS = client.emojis.cache.get('722816749707198574');
-
-        const emoji = {
-            vs: VS,
-            nc: NC,
-            tr: TR,
-            ns: NS,
-        };
 
         function requestAPIdata(world_name, world_id) {
             axios.get(`https://ps2.fisu.pw/api/population/?world=${world_id}`)
@@ -88,27 +79,41 @@ module.exports = {
             }
         }
 
-        async function genFacPop(vs, nc, tr, ns) {
+        function genFacPop(vs, nc, tr, ns) {
+            const total = vs + nc + tr + ns;
             return `
-            ${VS}:      ${vs}
-            ${TR}:      ${tr}
-            ${NC}:      ${nc}
-            ${NS}:      ${ns}
-            Total:      ${vs + nc + tr + ns}
+            ${VS}: __${vs}__ (${Math.round(vs / total * 100)}%)
+            ${TR}: __${tr}__ (${Math.round(tr / total * 100)}%)
+            ${NC}: __${nc}__ (${Math.round(nc / total * 100)}%)
+            ${NS}: __${ns}__ (${Math.round(ns / total * 100)}%)
+            Total: **${total}**
             `.trim();
         }
 
+        function formatTime(date) {
+            return ('0' + date.getHours()).slice(-2) + ':' + ('0' + date.getMinutes()).slice(-2);
+        }
+
         async function detailedPop(world) {
-            console.log(world);
             const mariadb = require('mariadb');
             const db_conn = mariadb.createPool({ host: config.mariadb.host, user: config.mariadb.user, password: config.mariadb.password, database: config.mariadb.database, port: config.mariadb.port });
             const last_pop = (await db_conn.query('SELECT * FROM `continent_population` WHERE world_id = ? ORDER BY pop_item_ID DESC LIMIT 1', [world.world_id]))[0];
+            console.log(last_pop);
 
+            if (last_pop == undefined) return message.channel.send('Server does not have population data available');
             let total_pop = 0;
+            for (const zone of constants.zones.filter(v => ['2', '4', '6', '8'].includes(v.zone_id))) {
+                for (const faction of ['vs', 'nc', 'tr', 'ns']) {
+                    total_pop += last_pop[zone.name.toLowerCase() + '_' + faction];
+                }
+            }
 
             const embed = new discord.MessageEmbed()
                 .setTitle(`Server population for ${world.name}`)
-                .setTimestamp(last_pop.timestamp);
+                .setTimestamp(last_pop.timestamp)
+                .setDescription(`${total_pop} active players earning XP`)
+                .setFooter('Percentages are rounded to the nearest integer')
+                .setColor('#599FAB');
 
             for (const zone of constants.zones.filter(v => ['2', '4', '6', '8'].includes(v.zone_id))) {
                 const pop = {
@@ -118,38 +123,35 @@ module.exports = {
                     ns: last_pop[zone.name.toLowerCase() + '_ns'],
                 };
 
-                console.log(last_pop, pop, zone.name.toLowerCase() + '_vs', last_pop[zone.name.toLowerCase() + '_vs']);
-
                 const zone_total = pop.vs + pop.nc + pop.tr + pop.ns;
-                total_pop += zone_total;
 
                 if (zone_total == 0) continue;
 
                 embed.addField(zone.name, `
-                ${zone_total} active players earning XP.
-                `.trim(), false);
-
-                for (const faction of ['vs', 'nc', 'tr', 'ns']) {
-                    embed.addField(emoji[faction], pop[faction], true);
-                }
+                ${zone_total} (${Math.round(zone_total / total_pop * 100)}%) active players earning XP.
+                ${genFacPop(pop.vs, pop.nc, pop.tr, pop.ns)}
+                `.trim(), true);
             }
-            embed.setDescription(`${total_pop} active players earning XP`);
 
-            message.channel.send(embed);
+            embed.addField('Time', formatTime(last_pop.timestamp) + ' UTC');
+
+            if (total_pop != 0) message.channel.send(embed);
+            else message.channel.send('This server has no population');
         }
 
         if (args[0]?.toLowerCase() === 'help' || args[0] === undefined) {
             message.channel.send(`
-            **The following sub-commands are available:**
-            \`fisu [server(s)]\`: requests population from Fisu. Allows multiple servers at once.
-            \`detailed [server name]\`: shows more detailed information pulled from this bot's self gathered data. This is a per continent run down of total and per faction population as well as total server population. Only one server at a time.
-            \`help\`: shows this page.
+**The following sub-commands are available:**
+\`fisu [server(s)]\`: requests population from Fisu. Allows multiple servers at once.
+\`detailed [server name]\`: shows more detailed information pulled from this bot's self gathered data. This is a per continent run down of total and per faction population as well as total server population. Only one server at a time.
+\`help\`: shows this page.
 
-            __Aliases:__
-            \`detailed\`: \`bot\`, \`dt\`
+__Aliases:__
+\`detailed\`: \`bot\`, \`dt\`
             `);
         }
         else if (args[0]?.toLowerCase() === 'fisu') {
+            args.shift();
             const unique = [...new Set(args)];
             const requested_world_id = unique.slice(0, constants.worlds.length + 1);
 
@@ -164,6 +166,9 @@ module.exports = {
             else {
                 message.channel.send('Please specify a correct world/server');
             }
+        }
+        else {
+            message.channel.send('This is not a correct sub command, use `!pop help` to show help');
         }
     },
 };
