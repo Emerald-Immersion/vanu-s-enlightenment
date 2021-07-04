@@ -32,8 +32,7 @@ module.exports = {
 
         function sendPopMessage(vs, tr, nc, ns, world_name) {
             console.log(world_name);
-            const total = parseInt(vs) + parseInt(tr) + parseInt(nc) + parseInt(ns);
-            message.channel.send(`${world_name} Server Population:\n    ${VS}:      ${vs}\n    ${TR}:      ${tr}\n    ${NC}:      ${nc}\n    ${NS}:      ${ns}\nTotal:      ${total}`);
+            message.channel.send(`${world_name} Server Population:\n${genFacPop(parseInt(vs), parseInt(nc), parseInt(tr), parseInt(ns))}`);
         }
 
         function createMessage(requested_world_id) {
@@ -82,11 +81,11 @@ module.exports = {
         function genFacPop(vs, nc, tr, ns) {
             const total = vs + nc + tr + ns;
             return `
-            ${VS}: __${vs}__ (${Math.round(vs / total * 100)}%)
-            ${TR}: __${tr}__ (${Math.round(tr / total * 100)}%)
-            ${NC}: __${nc}__ (${Math.round(nc / total * 100)}%)
-            ${NS}: __${ns}__ (${Math.round(ns / total * 100)}%)
-            Total: **${total}**
+${VS}: __${vs}__ (${Math.round(vs / total * 100)}%)
+${TR}: __${tr}__ (${Math.round(tr / total * 100)}%)
+${NC}: __${nc}__ (${Math.round(nc / total * 100)}%)
+${NS}: __${ns}__ (${Math.round(ns / total * 100)}%)
+Total: **${total}**
             `.trim();
         }
 
@@ -128,8 +127,8 @@ module.exports = {
                 if (zone_total == 0) continue;
 
                 embed.addField(zone.name, `
-                ${zone_total} (${Math.round(zone_total / total_pop * 100)}%) active players earning XP.
-                ${genFacPop(pop.vs, pop.nc, pop.tr, pop.ns)}
+${zone_total} (${Math.round(zone_total / total_pop * 100)}%) active players earning XP.
+${genFacPop(pop.vs, pop.nc, pop.tr, pop.ns)}
                 `.trim(), true);
             }
 
