@@ -1,6 +1,5 @@
 hidden
 node_modules
-config.json
 commands_indev
 images
 json/websocket_help.json

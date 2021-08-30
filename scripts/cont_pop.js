@@ -10,7 +10,8 @@ module.exports = {
         const loadouts = require('../json/loadouts.json');
         const worlds_info = require('../js/worlds');
 
-        const db_conn = mariadb.createPool({ host: config.mariadb.host, user: config.mariadb.user, password: config.mariadb.password, database: config.mariadb.database, port: config.mariadb.port });
+        const db_options = { host: config.mariadb.host, user: config.mariadb.user, password: config.mariadb.password, database: config.mariadb.database, port: config.mariadb.port };
+
         const { messages, worlds } = await createMsgRelatedArrs();
 
         let log_sub = 0;
@@ -74,12 +75,15 @@ module.exports = {
             const content = `Indar: ${stats.indar.num.all} (${stats.indar.percent}%)\nHossin: ${stats.hossin.num.all} (${stats.hossin.percent}%)\nAmerish: ${stats.amerish.num.all} (${stats.amerish.percent}%)\nEsamir: ${stats.esamir.num.all} (${stats.esamir.percent}%)\nTotal: ${stats.all}`;
             editMessages(`Active players for ${worlds_info.filter((obj) => obj.world_id == world_id)[0].name}:\`\`\`json\n${content}\`\`\`Last update: ${date_string}. Next update in ${args.interval / 60000} minutes`, world_id);
             appendFile('./log/pop.log', content + '\n');
-            db_conn.query(`
+
+            const db_conn = await mariadb.createConnection(db_options);
+            await db_conn.query(`
                 INSERT INTO continent_population
                 (indar_vs, indar_nc, indar_tr, indar_ns, hossin_vs, hossin_nc, hossin_tr, hossin_ns, amerish_vs, amerish_nc, amerish_tr, amerish_ns, esamir_vs, esamir_nc, esamir_tr, esamir_ns, world_id, gather_time)
                 VALUES
                 (${stats.indar.num.vs}, ${stats.indar.num.nc}, ${stats.indar.num.tr}, ${stats.indar.num.ns}, ${stats.hossin.num.vs}, ${stats.hossin.num.nc}, ${stats.hossin.num.tr}, ${stats.hossin.num.ns}, ${stats.amerish.num.vs}, ${stats.amerish.num.nc}, ${stats.amerish.num.tr}, ${stats.amerish.num.ns}, ${stats.esamir.num.vs}, ${stats.esamir.num.nc}, ${stats.esamir.num.tr}, ${stats.esamir.num.ns}, ${world_id}, ${args.interval})
                 `).catch(err => console.log(err));
+            db_conn.end();
         }
 
         async function editMessages(content, world_id) {
@@ -120,12 +124,7 @@ module.exports = {
         }
 
         function experienceProcessor(event_arr) {
-            const begin_d = Date.now();
-            appendFile('./log/pop.log', `Beginning hold at ${begin_d}\n`);
-            const saved_event_arr = event_arr;
-            const unique_arr = saved_event_arr.filter((v, i, a) => a.findIndex(t => (t.character_id == v.character_id)) == i);
-
-            event_arr.splice(0);
+            const unique_arr = event_arr.filter((v, i, a) => a.findIndex(t => (t.character_id == v.character_id)) == i);
 
             let timeout = 0;
             for (const world_id of worlds) {
@@ -162,7 +161,14 @@ module.exports = {
 
                 if (parsedData.connected === 'true') {
                     DBG_ws.send('{"service":"event","action":"clearSubscribe","all":"true"}');
-                    DBG_ws.send(`{"service":"event","action":"subscribe","worlds":["${worlds.join('","')}"],"characters": ["all"], "eventNames":["GainExperience"],"logicalAndCharactersWithWorlds":true}`);
+                    DBG_ws.send(`{
+                        "service":"event",
+                        "action":"subscribe",
+                        "worlds":["${worlds.join('","')}"],
+                        "characters": ["all"],
+                        "eventNames":["GainExperience"],
+                        "logicalAndCharactersWithWorlds":true
+                    }`);
                 }
 
                 if (parsedData.subscription && log_sub <= 1) {
@@ -182,6 +188,11 @@ module.exports = {
                         break;
                     }
                     }
+                    break;
+                }
+                case 'serviceStateChanged':
+                case 'connectionStateChanged':
+                case 'heartbeat': {
                     break;
                 }
                 default: {
