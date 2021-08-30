@@ -32,7 +32,7 @@ module.exports = {
                         vs: (loadout_idToFaction_id(indar, '1')).length,
                         nc: (loadout_idToFaction_id(indar, '2')).length,
                         tr: (loadout_idToFaction_id(indar, '3')).length,
-                        ns: (loadout_idToFaction_id(indar, '3', true)).length,
+                        ns: (loadout_idToFaction_id(indar, undefined, true)).length,
                     },
                 },
                 hossin: {
@@ -41,7 +41,7 @@ module.exports = {
                         vs: (loadout_idToFaction_id(hossin, '1')).length,
                         nc: (loadout_idToFaction_id(hossin, '2')).length,
                         tr: (loadout_idToFaction_id(hossin, '3')).length,
-                        ns: (loadout_idToFaction_id(hossin, '3', true)).length,
+                        ns: (loadout_idToFaction_id(hossin, undefined, true)).length,
                     },
                 },
                 amerish:  {
@@ -50,7 +50,7 @@ module.exports = {
                         vs: (loadout_idToFaction_id(amerish, '1')).length,
                         nc: (loadout_idToFaction_id(amerish, '2')).length,
                         tr: (loadout_idToFaction_id(amerish, '3')).length,
-                        ns: (loadout_idToFaction_id(amerish, '3', true)).length,
+                        ns: (loadout_idToFaction_id(amerish, undefined, true)).length,
                     },
                 },
                 esamir:  {
@@ -59,7 +59,7 @@ module.exports = {
                         vs: (loadout_idToFaction_id(esamir, '1')).length,
                         nc: (loadout_idToFaction_id(esamir, '2')).length,
                         tr: (loadout_idToFaction_id(esamir, '3')).length,
-                        ns: (loadout_idToFaction_id(esamir, '3', true)).length,
+                        ns: (loadout_idToFaction_id(esamir, undefined, true)).length,
                     },
                 },
             };
