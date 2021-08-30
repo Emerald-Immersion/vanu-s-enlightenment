@@ -152,6 +152,7 @@ module.exports = {
 
             setTimeout(() => {
                 experienceProcessor(event_arr);
+                DBG_ws.send('{"service":"event","action":"clearSubscribe","all":"true"}');
                 DBG_ws.close();
             }, args.interval);
 
@@ -159,8 +160,7 @@ module.exports = {
                 // Parses 'data' and stores it in 'parsedData'
                 const parsedData = JSON.parse(data);
 
-                if (parsedData.connected === 'true') {
-                    DBG_ws.send('{"service":"event","action":"clearSubscribe","all":"true"}');
+                if (parsedData.connected == 'true') {
                     DBG_ws.send(`{
                         "service":"event",
                         "action":"subscribe",
