@@ -119,11 +119,11 @@ module.exports = {
         const path = require('path');
         const mariadb = require('mariadb');
 
-        const db_conn = mariadb.createPool({ host: config.mariadb.host, user: config.mariadb.user, password: config.mariadb.password, database: config.mariadb.database, port: config.mariadb.port });
+        const db_conn = mariadb.createConnection({ host: config.mariadb.host, user: config.mariadb.user, password: config.mariadb.password, database: config.mariadb.database, port: config.mariadb.port });
 
         const script_path = paths.dirs.scripts;
         const breaks = ['NO_ANSWER', 'U_KEY_PRESSED', 'INVALID_ANSWER'];
-        const all_scripts = await db_conn.query('SELECT * FROM scripts').catch(err => console.error(err));
+        const all_scripts = await (await db_conn).query('SELECT * FROM scripts').catch(err => console.error(err));
         const scripts = all_scripts.filter(script => script.hidden == 0);
         // const extension = '.js';
         // const scripts = fs.readdirSync(script_path).filter(file => file.endsWith(extension)).map(v => v.split(extension)[0]);
@@ -167,7 +167,7 @@ module.exports = {
             const enabled = responses[1];
             const args = await json({ channel, responses });
 
-            const query = db_conn.query(`
+            const query = (await db_conn).query(`
             INSERT INTO autostart(script_ID, enabled, guild_ID, args)
             VALUES("${script_ID}", "${enabled}", ${message.guild.id}, '${args}')
             `);
@@ -176,6 +176,7 @@ module.exports = {
 
             query.then(v => {
                 channel.send(`The ID of this command is: ${v.insertId}. You need this to manage the script. Script will run on next restart`);
+                db_conn.end();
             });
         });
 

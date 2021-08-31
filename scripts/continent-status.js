@@ -12,7 +12,7 @@ module.exports = {
         const zones = require('../js/zones');
 
         const DBG_ws = new WebSocket('wss://push.planetside2.com/streaming?environment=ps2&service-id=s:' + config.dbg_api.service_id);
-        const db_conn = mariadb.createPool({ host: config.mariadb.host, user: config.mariadb.user, password: config.mariadb.password, database: config.mariadb.database, port: config.mariadb.port });
+        const db_options = { host: config.mariadb.host, user: config.mariadb.user, password: config.mariadb.password, database: config.mariadb.database, port: config.mariadb.port };
 
         const { messages, worlds } = await createMsgRelatedArrs();
 
@@ -89,7 +89,11 @@ module.exports = {
 
             console.log(`(sM) Type is "${payload.event_name}"`);
 
-            db_conn.query(`INSERT INTO metagame_events(experience_bonus,faction_nc,faction_tr,faction_vs,instance_id,metagame_event_id,metagame_event_state,metagame_event_state_name,timestamp,world_id,zone_id)VALUES(${payload.experience_bonus},${payload.faction_nc},${payload.faction_tr},${payload.faction_vs},${payload.instance_id},${payload.metagame_event_id},${payload.metagame_event_state},"${payload.metagame_event_state_name}",from_unixtime(${payload.timestamp.getTime()}),${payload.world_id},${payload.zone_id})`).catch(err => SQLErrorHandler(err, payload));
+            const db_conn = mariadb.createConnection(db_options);
+            db_conn.then(async (conn) => {
+                await conn.query(`INSERT INTO metagame_events(experience_bonus,faction_nc,faction_tr,faction_vs,instance_id,metagame_event_id,metagame_event_state,metagame_event_state_name,timestamp,world_id,zone_id)VALUES(${payload.experience_bonus},${payload.faction_nc},${payload.faction_tr},${payload.faction_vs},${payload.instance_id},${payload.metagame_event_id},${payload.metagame_event_state},"${payload.metagame_event_state_name}",from_unixtime(${payload.timestamp.getTime()}),${payload.world_id},${payload.zone_id})`).catch(err => SQLErrorHandler(err, payload));
+                await conn.end();
+            });
         }
 
         function parseRound(number) {
@@ -129,7 +133,9 @@ module.exports = {
         async function init() {
             for (const world_id of worlds) {
                 for (const zone of zones.filter((v, i) => i < 4)) {
+                    const db_conn = await mariadb.createConnection(db_options);
                     const payload = await db_conn.query(`SELECT * FROM metagame_events WHERE zone_id = ${zone.zone_id} AND world_id = ${world_id} ORDER BY timestamp DESC limit 1`);
+                    db_conn.end();
 
                     if (payload[0] == undefined) {
                         editMessage(undefined, world_id, zone.name, true);
@@ -207,10 +213,6 @@ module.exports = {
                 break;
             }
             }
-        });
-
-        db_conn.on('error', err => {
-            console.log(err);
         });
     },
 };

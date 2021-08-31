@@ -1,7 +1,7 @@
 module.exports = async function(config, args, settings) {
     const mariadb = require('mariadb');
     const { CanvasRenderService } = require('chartjs-node-canvas');
-    const db_conn = mariadb.createPool({ host: config.mariadb.host, user: config.mariadb.user, password: config.mariadb.password, database: config.mariadb.database, port: config.mariadb.port });
+    const db_conn = mariadb.createConnection({ host: config.mariadb.host, user: config.mariadb.user, password: config.mariadb.password, database: config.mariadb.database, port: config.mariadb.port });
     const canvasRenderService = new CanvasRenderService(1920, 1080, (ChartJS) => {
         ChartJS.plugins.register({
             beforeDraw: (chart) => {
@@ -86,7 +86,7 @@ module.exports = async function(config, args, settings) {
     else {
         hours_back = args[1];
     }
-    const SQL_data = await db_conn.query(`
+    const SQL_data = await (await db_conn).query(`
     SELECT
         *
     FROM
@@ -97,6 +97,7 @@ module.exports = async function(config, args, settings) {
         continent_population.timestamp
     DESC
     `);
+    (await db_conn).end();
 
     for (const obj of SQL_data) {
         configuration.data.labels.push(obj.timestamp);

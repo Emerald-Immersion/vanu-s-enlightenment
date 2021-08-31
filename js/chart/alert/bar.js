@@ -1,7 +1,7 @@
 module.exports = async function(config, args) {
     const mariadb = require('mariadb');
     const { CanvasRenderService } = require('chartjs-node-canvas');
-    const db_conn = mariadb.createPool({ host: config.mariadb.host, user: config.mariadb.user, password: config.mariadb.password, database: config.mariadb.database, port: config.mariadb.port });
+    const db_conn = mariadb.createConnection({ host: config.mariadb.host, user: config.mariadb.user, password: config.mariadb.password, database: config.mariadb.database, port: config.mariadb.port });
     const canvasRenderService = new CanvasRenderService(1920, 1080, (ChartJS) => {
         ChartJS.plugins.register({
             beforeDraw: (chart) => {
@@ -46,7 +46,7 @@ module.exports = async function(config, args) {
         months_back = parseInt(args[2]);
     }
 
-    const SQL_data = await db_conn.query(`
+    const SQL_data = await (await db_conn).query(`
     SELECT
         *
     FROM
@@ -59,6 +59,8 @@ module.exports = async function(config, args) {
         metagame_events.timestamp
     DESC
     `);
+
+    (await db_conn).end();
 
     configuration.data.labels = [`Total wins per faction over ${months_back} month`];
     for (const obj of SQL_data) {

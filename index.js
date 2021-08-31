@@ -7,26 +7,29 @@ const path = require('path');
 const config = require('./json/config.json');
 const constants = require('./json/constants.json');
 
-const db_conn = mariadb.createPool({ host: config.mariadb.host, user: config.mariadb.user, password: config.mariadb.password, database: config.mariadb.database, port: config.mariadb.port });
+const db_options = { host: config.mariadb.host, user: config.mariadb.user, password: config.mariadb.password, database: config.mariadb.database, port: config.mariadb.port };
 
 const client = new Discord.Client();
 client.commands = new Discord.Collection();
 
 class guildSettingsObject {
-    constructor(database_pool) {
-        this.database_connection = database_pool;
+    constructor(database_options) {
+        this.database_options = database_options;
     }
     async updateSettings() {
-        this.database_connection.query({ sql: 'SELECT * FROM guild_settings' }).then(res => {
+        const db_conn = await mariadb.createConnection(this.database_options);
+        await db_conn.query({ sql: 'SELECT * FROM guild_settings' }).then(res => {
             this.settings = [];
             for (const record of res) {
                 const obj = record;
                 this.settings[record.guild_ID] = obj;
             }
         });
+        db_conn.end();
     }
     async addNewGuilds(guild_ID_arr = []) {
-        const db_records = await this.database_connection.query(`SELECT guild_ID
+        const db_conn = await mariadb.createConnection(this.database_options);
+        const db_records = await db_conn.query(`SELECT guild_ID
         FROM guild_settings
         WHERE guild_ID IN ("${guild_ID_arr.join('", "')}")`);
 
@@ -35,6 +38,7 @@ class guildSettingsObject {
         const query = `INSERT INTO guild_settings (guild_ID) VALUES ("${new_guilds.join('"),("')}")`;
 
         await this.database_connection.query(query);
+        db_conn.end();
         await this.updateSettings();
     }
     returnSettings() {
@@ -54,7 +58,9 @@ class autoStartObject {
         this.scripts = this.scriptsObjCreator(args_parsed);
     }
     async scriptsObjCreator(args_parsed) {
+        const db_conn = await mariadb.createConnection(db_options);
         const scripts = await db_conn.query('SELECT * FROM scripts');
+        db_conn.end();
         // Return an array for each script in the same format as the old script starter,
         // together with new features, i.e script_ID
         return await scripts.map(async script => {
@@ -181,7 +187,9 @@ async function rmOldMSG(channel_id) {
 
 async function fireStarter() {
     // Improved starter from DB with support for management using commands
+    const db_conn = await mariadb.createConnection(db_options);
     const autostart = await db_conn.query('SELECT * FROM autostart');
+    db_conn.end();
     const DB_autostart = new autoStartObject(autostart);
 
     DB_autostart.scripts.then(promis_arr => {
@@ -191,7 +199,7 @@ async function fireStarter() {
     });
 }
 
-const guild_settings = new guildSettingsObject(db_conn);
+const guild_settings = new guildSettingsObject(db_options);
 const settings_update = guild_settings.updateSettings();
 
 let dir;

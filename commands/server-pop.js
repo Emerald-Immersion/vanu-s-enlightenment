@@ -94,8 +94,9 @@ Total: **${total}**
 
         async function detailedPop(world) {
             const mariadb = require('mariadb');
-            const db_conn = mariadb.createPool({ host: config.mariadb.host, user: config.mariadb.user, password: config.mariadb.password, database: config.mariadb.database, port: config.mariadb.port });
+            const db_conn = await mariadb.createConnection({ host: config.mariadb.host, user: config.mariadb.user, password: config.mariadb.password, database: config.mariadb.database, port: config.mariadb.port });
             const last_pop = (await db_conn.query('SELECT * FROM `continent_population` WHERE world_id = ? ORDER BY pop_item_ID DESC LIMIT 1', [world.world_id]))[0];
+            db_conn.end();
 
             if (last_pop == undefined) return message.channel.send('Server does not have population data available');
             let total_pop = 0;
