@@ -233,6 +233,10 @@ function getRecurringEvents(vevent, startDate, endDate) {
 function htmlToDiscordMarkdown(html) {
     let out = html;
 
+    // Replace less than and greater than
+    out = out.replace(/&lt;/g, '<');
+    out = out.replace(/&gt;/g, '>');
+
     // HTML entities that google calendar seems to like to add.
     out = out.replace(/&nbsp;/, ' ');
 
