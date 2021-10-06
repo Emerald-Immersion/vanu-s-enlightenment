@@ -6,4 +6,4 @@ json/websocket_help.json
 log/pop.log
 txt/ps2news_lastcheckdate.txt
 json/config.json
-workspace.code-workspace
+*.code-workspace
