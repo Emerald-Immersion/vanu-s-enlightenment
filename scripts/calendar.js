@@ -122,7 +122,7 @@ class Calendar {
 
         outEvents
             .map(event => {
-                event.start = this.timezones.localiseTime(event.start, event.start.tz, event.start.inTzDate);
+                event.start = this.timezones.localiseTime(event.start, event.start.tz, event.start);
                 return event;
             });
 
