@@ -9,6 +9,7 @@ module.exports = {
 
         const config = require('../json/config.json');
         const constants = require('../json/constants.json');
+        // If this module is to be used, please edit the usage for zones.js
         const zones = require('../js/zones');
 
         const DBG_ws = new WebSocket('wss://push.planetside2.com/streaming?environment=ps2&service-id=s:' + config.dbg_api.service_id);
