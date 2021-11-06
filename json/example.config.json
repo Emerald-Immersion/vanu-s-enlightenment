@@ -1,0 +1,40 @@
+{
+  "bot": {
+    "token": "",
+    "prefix": "!",
+    "activity": "!help for commands"
+  },
+  "chart": {
+    "width": "1920",
+    "height": "1080"
+  },
+  "dbg_api": {
+    "service_id": ""
+  },
+  "mariadb": {
+    "host": "ip_addr",
+    "user": "",
+    "password": "",
+    "database": "vanu-s-enlightenment_live",
+    "port": "3307"
+  },
+  "author": {
+    "discord_id": "229190659943301121"
+  },
+  "autostart": [
+    {
+      "enabled": true,
+      "script_name": "outfit-on.js",
+      "channel_id": "",
+      "outfit_alias": "EDIM",
+      "interval": 300000,
+      "messages": {
+        "header": "msg_id",
+        "member0": "msg_id",
+        "member1": "msg_id",
+        "footer": "msg_id"
+      }
+    }
+  ],
+  "rmOldMSG": []
+}
