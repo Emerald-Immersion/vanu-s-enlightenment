@@ -122,7 +122,7 @@ class Calendar {
 
         outEvents
             .map(event => {
-                event.start = this.timezones.localiseTime(event.start, event.start.tz, event.start.inTzDate);
+                event.start = this.timezones.localiseTime(event.start, event.start.tz, event.start);
                 return event;
             });
 
@@ -167,7 +167,7 @@ module.exports = {
                 // Parse and Sort (Closest event first)
                 const calendar = new Calendar(ical.parseICS(calResp.data));
                 const events = calendar.eventsBetween(today, end)
-                    .sort((e1, e2) => new Date(e1.end).getTime() - new Date(e2.start).getTime());
+                    .sort((e1, e2) => new Date(e1.start).getTime() - new Date(e2.start).getTime());
 
                 // Clear old Messages
                 await clearChannel(client, channelId);
