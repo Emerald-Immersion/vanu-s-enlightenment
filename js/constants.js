@@ -61,7 +61,6 @@ class constants {
         )[0];
         const fields = ['name', 'code_tag', 'user_selectable'];
 
-        console.log(this.factions);
         this.factions = await this.buildObject(rest_factions, fields, 'faction', this.factions);
     }
     async buildObject(rest_collection, fields, collection_name, old_obj) {
@@ -78,7 +77,6 @@ class constants {
                     // create object path in output if it doesn't exist
                     if (!(rest_key in output)) {
                         output[rest_key] = {};
-                        // console.log(rest_key);
                     }
 
                     // Update the path
@@ -112,6 +110,7 @@ const local_zones = {
         description: 'The arid continent of Indar is home to multiple biomes, providing unique challenges for its combatants.',
         thumbnail: 'https://raw.githubusercontent.com/emerald-immersion/Vanu-s-Enlightenment/master/images/Indar.jpg',
         color: '#e7b89a',
+        isMain: true,
     },
     '4': {
         zone_id: '4',
@@ -119,6 +118,7 @@ const local_zones = {
         description: 'Hossin\'s dense mangrove and willow forests provide air cover along its many swamps and highlands.',
         thumbnail: 'https://i.ytimg.com/vi/RSOXlSVHrac/maxresdefault.jpg',
         color: '#4a745e',
+        isMain: true,
     },
     '6': {
         zone_id: '6',
@@ -126,6 +126,7 @@ const local_zones = {
         description: 'Amerish\'s lush groves and rocky outcroppings provide ample cover between its rolling plains and mountain passes.',
         thumbnail: 'http://www.legamer.com/wp-content/uploads/PS2_Amerish_Screenshot_103012_005.jpg',
         color: '#73c46a',
+        isMain: true,
     },
     '8': {
         zone_id: '8',
@@ -133,6 +134,7 @@ const local_zones = {
         description: 'Esamir\'s expanses of frigid tundra and craggy mountains provide little cover from airborne threats.',
         thumbnail: 'http://www.sggaminginfo.com/wp-content/gallery/planetside2-2137-764/PS2_Esamir_Screenshot_100412_4.jpg',
         color: '#FFFFFE',
+        isMain: true,
     },
     '14': {
         zone_id: '14',
@@ -140,26 +142,31 @@ const local_zones = {
         // description: 'No description',
         // thumbnail: 'http://www.sggaminginfo.com/wp-content/gallery/planetside2-2137-764/PS2_Esamir_Screenshot_100412_4.jpg',
         // color: '#FFFFFE',
+        isMain: true,
     },
     '96': {
         zone_id: '96',
         name: 'VR training zone (NC)',
         description: 'Experiment with all weapons, vehicles and attachments in your empire\'s own VR Training simulator.',
+        isMain: false,
     },
     '97': {
         zone_id: '97',
         name: 'VR training zone (TR)',
         description: 'Experiment with all weapons, vehicles and attachments in your empire\'s own VR Training simulator.',
+        isMain: false,
     },
     '98': {
         zone_id: '98',
         name: 'VR training zone (VS)',
         description: 'Experiment with all weapons, vehicles and attachments in your empire\'s own VR Training simulator.',
+        isMain: false,
     },
     other: {
         zone_id: 'other',
         name: 'Unkown continent',
         description: 'No description specified',
+        isMain: false,
     },
 };
 
@@ -192,27 +199,31 @@ const local_worlds = {
 
 const local_factions = {
     '0': {
+        faction_id: '0',
         name: 'None',
         code_tag: 'None',
         user_selectable: '0',
     },
     '1': {
+        faction_id: '1',
         name: 'Vanu Sovereignty',
         code_tag: 'VS',
         user_selectable: '1',
     },
     '2': {
+        faction_id: '2',
         name: 'New Conglomerate',
         code_tag: 'NC',
         user_selectable: '1',
     },
     '3': {
+        faction_id: '3',
         name: 'Terran Republic',
         code_tag: 'TR',
         user_selectable: '1',
     },
     '4': {
-        faction_id: 4,
+        faction_id: '4',
         name: 'NS Operatives',
         code_tag: 'NSO',
         user_selectable: '1',
