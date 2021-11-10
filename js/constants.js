@@ -110,7 +110,16 @@ const local_zones = {
         description: 'The arid continent of Indar is home to multiple biomes, providing unique challenges for its combatants.',
         thumbnail: 'https://raw.githubusercontent.com/emerald-immersion/Vanu-s-Enlightenment/master/images/Indar.jpg',
         color: '#e7b89a',
-        isMain: true,
+        // Importance scale:
+        // 0 is the highest importance and mainly for main zones like Indar or Hossin
+        // 5 are zones that are not part of the main continent rotation,
+        //   but may be included if certain conditions are met, like Koltyr
+        // 10 Are event zones like Desolation that may be open for special reasons like Outfit Wars
+        // 20 Are the training zones, usually have NPC's and vehicles to test weapons, like VR training
+        // 30 Are the tutorial zone(s)
+        // 40 Are passive zones where weapons may not be fired, like Sanctuary
+        // 50 Are unkown zones
+        importance: 0,
     },
     '4': {
         zone_id: '4',
@@ -118,7 +127,7 @@ const local_zones = {
         description: 'Hossin\'s dense mangrove and willow forests provide air cover along its many swamps and highlands.',
         thumbnail: 'https://i.ytimg.com/vi/RSOXlSVHrac/maxresdefault.jpg',
         color: '#4a745e',
-        isMain: true,
+        importance: 0,
     },
     '6': {
         zone_id: '6',
@@ -126,7 +135,7 @@ const local_zones = {
         description: 'Amerish\'s lush groves and rocky outcroppings provide ample cover between its rolling plains and mountain passes.',
         thumbnail: 'http://www.legamer.com/wp-content/uploads/PS2_Amerish_Screenshot_103012_005.jpg',
         color: '#73c46a',
-        isMain: true,
+        importance: 0,
     },
     '8': {
         zone_id: '8',
@@ -134,7 +143,7 @@ const local_zones = {
         description: 'Esamir\'s expanses of frigid tundra and craggy mountains provide little cover from airborne threats.',
         thumbnail: 'http://www.sggaminginfo.com/wp-content/gallery/planetside2-2137-764/PS2_Esamir_Screenshot_100412_4.jpg',
         color: '#FFFFFE',
-        isMain: true,
+        importance: 0,
     },
     '14': {
         zone_id: '14',
@@ -142,31 +151,55 @@ const local_zones = {
         // description: 'No description',
         // thumbnail: 'http://www.sggaminginfo.com/wp-content/gallery/planetside2-2137-764/PS2_Esamir_Screenshot_100412_4.jpg',
         // color: '#FFFFFE',
-        isMain: true,
+        importance: 0,
+    },
+    '95': {
+        zone_id: '95',
+        name: 'Tutorial 1',
+        description: 'A tutorial zone',
+        importance: 30,
     },
     '96': {
         zone_id: '96',
         name: 'VR training zone (NC)',
         description: 'Experiment with all weapons, vehicles and attachments in your empire\'s own VR Training simulator.',
-        isMain: false,
+        importance: 20,
     },
     '97': {
         zone_id: '97',
         name: 'VR training zone (TR)',
         description: 'Experiment with all weapons, vehicles and attachments in your empire\'s own VR Training simulator.',
-        isMain: false,
+        importance: 20,
     },
     '98': {
         zone_id: '98',
         name: 'VR training zone (VS)',
         description: 'Experiment with all weapons, vehicles and attachments in your empire\'s own VR Training simulator.',
-        isMain: false,
+        importance: 20,
+    },
+    '364': {
+        zone_id: '364',
+        name: 'Tutorial 2',
+        description: 'A tutorial zone',
+        importance: 30,
+    },
+    '361': {
+        zone_id: '361',
+        name: 'Desolation',
+        description: 'Used for the Outfit Wars community event and can only be accessed during matches.',
+        importance: 10,
+    },
+    '362': {
+        zone_id: '362',
+        name: 'Sanctuary',
+        description: 'Community hub in orbit around Auraxis. All factions reside in the same location without the ability to fire weapons.',
+        importance: 40,
     },
     other: {
         zone_id: 'other',
         name: 'Unkown continent',
         description: 'No description specified',
-        isMain: false,
+        importance: 50,
     },
 };
 
