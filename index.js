@@ -1,5 +1,4 @@
 global.paths = require('./js/paths');
-global.constants = new new_constants.constants();
 const fs = require('fs');
 const Discord = require('discord.js');
 const mariadb = require('mariadb');
@@ -7,7 +6,6 @@ const path = require('path');
 
 const config = require('./json/config.json');
 const constants = require('./json/constants.json');
-const new_constants = require('./js/constants');
 
 const db_options = { host: config.mariadb.host, user: config.mariadb.user, password: config.mariadb.password, database: config.mariadb.database, port: config.mariadb.port };
 
