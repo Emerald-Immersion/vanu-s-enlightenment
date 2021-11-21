@@ -1,3 +1,61 @@
+async function genPopEmbed(client, world, last_pop, total_pop) {
+    const discord = require('discord.js');
+    const emoji = {
+        vs: client.emojis.cache.get('683285085818191976'),
+        tr: client.emojis.cache.get('683285084463431720'),
+        nc: client.emojis.cache.get('683285084320694302'),
+        ns: client.emojis.cache.get('722816749707198574'),
+    };
+
+    const embed = new discord.MessageEmbed()
+        .setTitle(`Server population for ${world.name}`)
+        .setTimestamp(last_pop.timestamp)
+        .setDescription(`${total_pop} active players earning XP`)
+        .setFooter('Percentages are rounded to the nearest integer')
+        .setColor('#599FAB');
+
+    for (const zone of constants.zones.filter(v => ['2', '4', '6', '8'].includes(v.zone_id))) {
+        const pop = {
+            vs: last_pop[zone.name.toLowerCase() + '_vs'],
+            nc: last_pop[zone.name.toLowerCase() + '_nc'],
+            tr: last_pop[zone.name.toLowerCase() + '_tr'],
+            ns: last_pop[zone.name.toLowerCase() + '_ns'],
+        };
+
+        const zone_total = pop.vs + pop.nc + pop.tr + pop.ns;
+
+        if (zone_total == 0) continue;
+
+        embed.addField(zone.name, `
+${zone_total} (${Math.round(zone_total / total_pop * 100)}%) active players earning XP.
+${genFacPop(emoji, pop.vs, pop.nc, pop.tr, pop.ns)}
+                `.trim(), true);
+    }
+
+    embed.addField('Time', formatTime(last_pop.timestamp) + ' UTC');
+}
+
+function genFacPop(emoji = {
+    vs,
+    nc,
+    tr,
+    ns,
+}, vs, nc, tr, ns) {
+
+    const total = vs + nc + tr + ns;
+    return `
+${emoji.VS}: __${vs}__ (${Math.round(vs / total * 100)}%)
+${emoji.TR}: __${tr}__ (${Math.round(tr / total * 100)}%)
+${emoji.NC}: __${nc}__ (${Math.round(nc / total * 100)}%)
+${emoji.NS}: __${ns}__ (${Math.round(ns / total * 100)}%)
+Total: **${total}**
+    `.trim();
+}
+
+function formatTime(date) {
+    return ('0' + date.getHours()).slice(-2) + ':' + ('0' + date.getMinutes()).slice(-2);
+}
+
 module.exports = {
     name: 'server-pop',
     args: false,
@@ -5,14 +63,11 @@ module.exports = {
     aliases: ['pop', 'serverpop', 'serverPop'], // Aliases for the command
     help: '!server-pop [server name or ID]; Show a server\'s population. Can request multiple servers. Aliases: !pop, !serverpop, !serverPop. DM', // Help information to show
     restricted: [], // Options: discord ID, role ID, role Name
+    formatTime,
+    genPopEmbed,
+    genFacPop,
     execute(message, args, config, constants, client) {
         const axios = require('axios');
-        const discord = require('discord.js');
-
-        const VS = client.emojis.cache.get('683285085818191976');
-        const TR = client.emojis.cache.get('683285084463431720');
-        const NC = client.emojis.cache.get('683285084320694302');
-        const NS = client.emojis.cache.get('722816749707198574');
 
         function requestAPIdata(world_name, world_id) {
             axios.get(`https://ps2.fisu.pw/api/population/?world=${world_id}`)
@@ -31,7 +86,13 @@ module.exports = {
         }
 
         function sendPopMessage(vs, tr, nc, ns, world_name) {
-            message.channel.send(`${world_name} Server Population:\n${genFacPop(parseInt(vs), parseInt(nc), parseInt(tr), parseInt(ns))}`);
+            const emoji = {
+                vs: client.emojis.cache.get('683285085818191976'),
+                tr: client.emojis.cache.get('683285084463431720'),
+                nc: client.emojis.cache.get('683285084320694302'),
+                ns: client.emojis.cache.get('722816749707198574'),
+            };
+            message.channel.send(`${world_name} Server Population:\n${genFacPop(emoji, parseInt(vs), parseInt(nc), parseInt(tr), parseInt(ns))}`);
         }
 
         function createMessage(requested_world_id) {
@@ -77,21 +138,6 @@ module.exports = {
             }
         }
 
-        function genFacPop(vs, nc, tr, ns) {
-            const total = vs + nc + tr + ns;
-            return `
-${VS}: __${vs}__ (${Math.round(vs / total * 100)}%)
-${TR}: __${tr}__ (${Math.round(tr / total * 100)}%)
-${NC}: __${nc}__ (${Math.round(nc / total * 100)}%)
-${NS}: __${ns}__ (${Math.round(ns / total * 100)}%)
-Total: **${total}**
-            `.trim();
-        }
-
-        function formatTime(date) {
-            return ('0' + date.getHours()).slice(-2) + ':' + ('0' + date.getMinutes()).slice(-2);
-        }
-
         async function detailedPop(world) {
             const mariadb = require('mariadb');
             const db_conn = await mariadb.createConnection({ host: config.mariadb.host, user: config.mariadb.user, password: config.mariadb.password, database: config.mariadb.database, port: config.mariadb.port });
@@ -106,33 +152,7 @@ Total: **${total}**
                 }
             }
 
-            const embed = new discord.MessageEmbed()
-                .setTitle(`Server population for ${world.name}`)
-                .setTimestamp(last_pop.timestamp)
-                .setDescription(`${total_pop} active players earning XP`)
-                .setFooter('Percentages are rounded to the nearest integer')
-                .setColor('#599FAB');
-
-            for (const zone of constants.zones.filter(v => ['2', '4', '6', '8'].includes(v.zone_id))) {
-                const pop = {
-                    vs: last_pop[zone.name.toLowerCase() + '_vs'],
-                    nc: last_pop[zone.name.toLowerCase() + '_nc'],
-                    tr: last_pop[zone.name.toLowerCase() + '_tr'],
-                    ns: last_pop[zone.name.toLowerCase() + '_ns'],
-                };
-
-                const zone_total = pop.vs + pop.nc + pop.tr + pop.ns;
-
-                if (zone_total == 0) continue;
-
-                embed.addField(zone.name, `
-${zone_total} (${Math.round(zone_total / total_pop * 100)}%) active players earning XP.
-${genFacPop(pop.vs, pop.nc, pop.tr, pop.ns)}
-                `.trim(), true);
-            }
-
-            embed.addField('Time', formatTime(last_pop.timestamp) + ' UTC');
-
+            const embed = genPopEmbed(world, last_pop, total_pop);
             if (total_pop != 0) message.channel.send(embed);
             else message.channel.send('This server has no population');
         }

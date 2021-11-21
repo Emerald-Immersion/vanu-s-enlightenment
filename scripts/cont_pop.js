@@ -1,4 +1,3 @@
-const paths = require('../js/paths');
 module.exports = {
     name: 'cont_pop',
     async execute(args, client) {
@@ -8,7 +7,6 @@ module.exports = {
 
         const config = require('../json/config.json');
         const loadouts = require('../json/loadouts.json');
-        const worlds_info = require('../js/worlds');
 
         const db_options = { host: config.mariadb.host, user: config.mariadb.user, password: config.mariadb.password, database: config.mariadb.database, port: config.mariadb.port };
 
@@ -16,58 +14,46 @@ module.exports = {
 
         let log_sub = 0;
 
+        await constants.initPromise;
+
         async function worldMessageEditor(unique_arr) {
             if (unique_arr.length == 0) return;
             const world_id = unique_arr[0].world_id;
-            const indar = unique_arr.filter((e) => e.zone_id == '2');
-            const hossin = unique_arr.filter((e) => e.zone_id == '4');
-            const amerish = unique_arr.filter((e) => e.zone_id == '6');
-            const esamir = unique_arr.filter((e) => e.zone_id == '8');
 
             const stats = {
                 all: unique_arr.length,
-                indar: {
-                    num: {
-                        all: indar.length,
-                        vs: (loadout_idToFaction_id(indar, '1')).length,
-                        nc: (loadout_idToFaction_id(indar, '2')).length,
-                        tr: (loadout_idToFaction_id(indar, '3')).length,
-                        ns: (loadout_idToFaction_id(indar, undefined, true)).length,
-                    },
-                },
-                hossin: {
-                    num: {
-                        all: hossin.length,
-                        vs: (loadout_idToFaction_id(hossin, '1')).length,
-                        nc: (loadout_idToFaction_id(hossin, '2')).length,
-                        tr: (loadout_idToFaction_id(hossin, '3')).length,
-                        ns: (loadout_idToFaction_id(hossin, undefined, true)).length,
-                    },
-                },
-                amerish:  {
-                    num: {
-                        all: amerish.length,
-                        vs: (loadout_idToFaction_id(amerish, '1')).length,
-                        nc: (loadout_idToFaction_id(amerish, '2')).length,
-                        tr: (loadout_idToFaction_id(amerish, '3')).length,
-                        ns: (loadout_idToFaction_id(amerish, undefined, true)).length,
-                    },
-                },
-                esamir:  {
-                    num: {
-                        all: esamir.length,
-                        vs: (loadout_idToFaction_id(esamir, '1')).length,
-                        nc: (loadout_idToFaction_id(esamir, '2')).length,
-                        tr: (loadout_idToFaction_id(esamir, '3')).length,
-                        ns: (loadout_idToFaction_id(esamir, undefined, true)).length,
-                    },
-                },
+                updated_at: Date.now(),
             };
 
-            stats.indar.percent = (stats.indar.num.all / stats.all * 100).toFixed(0);
-            stats.hossin.percent = (stats.hossin.num.all / stats.all * 100).toFixed(0);
-            stats.amerish.percent = (stats.amerish.num.all / stats.all * 100).toFixed(0);
-            stats.esamir.percent = (stats.esamir.num.all / stats.all * 100).toFixed(0);
+            for (
+                const zone_id in unique_arr
+                    .map(event => event.zone_id)
+            ) {
+                stats[zone_id] = {};
+
+                // Filter out data not in zone
+                const zone_data = unique_arr.filter((e) => e.zone_id == zone_id);
+
+                let total_players_zone = 0;
+
+                for (const f_key in constants.factions) {
+                    const faction = constants.factions[f_key];
+
+                    // Total players per faction
+                    const isNSO = (faction.code_tag == 'NSO');
+                    const total_players_faction = (loadout_idToFaction_id(zone_data, faction.faction_id, isNSO)).length;
+
+                    // Add to total zone and set faction total
+                    stats[zone_id][f_key] = total_players_faction;
+                    total_players_zone += total_players_faction;
+                }
+
+                // Add percentages and total players in zone
+                stats[zone_id].all = total_players_zone;
+                stats[zone_id].percent = (stats[zone_id].all / stats.all * 100);
+            }
+
+            debugger;
 
             const date = new Date;
             const date_string = `${intToTwoDigits(date.getUTCHours())}:${intToTwoDigits(date.getUTCMinutes())} ${intToTwoDigits(date.getUTCDate())}-${intToTwoDigits(date.getUTCMonth() + 1)} UTC`;
@@ -77,13 +63,20 @@ module.exports = {
             appendFile('./log/pop.log', content + '\n');
 
             const db_conn = await mariadb.createConnection(db_options);
-            await db_conn.query(`
-                INSERT INTO continent_population
-                (indar_vs, indar_nc, indar_tr, indar_ns, hossin_vs, hossin_nc, hossin_tr, hossin_ns, amerish_vs, amerish_nc, amerish_tr, amerish_ns, esamir_vs, esamir_nc, esamir_tr, esamir_ns, world_id, gather_time)
-                VALUES
-                (${stats.indar.num.vs}, ${stats.indar.num.nc}, ${stats.indar.num.tr}, ${stats.indar.num.ns}, ${stats.hossin.num.vs}, ${stats.hossin.num.nc}, ${stats.hossin.num.tr}, ${stats.hossin.num.ns}, ${stats.amerish.num.vs}, ${stats.amerish.num.nc}, ${stats.amerish.num.tr}, ${stats.amerish.num.ns}, ${stats.esamir.num.vs}, ${stats.esamir.num.nc}, ${stats.esamir.num.tr}, ${stats.esamir.num.ns}, ${world_id}, ${args.interval})
-                `).catch(err => console.log(err));
-            db_conn.end();
+            try {
+                await db_conn.query(`
+                    INSERT INTO continent_population
+                    (indar_vs, indar_nc, indar_tr, indar_ns, hossin_vs, hossin_nc, hossin_tr, hossin_ns, amerish_vs, amerish_nc, amerish_tr, amerish_ns, esamir_vs, esamir_nc, esamir_tr, esamir_ns, world_id, gather_time)
+                    VALUES
+                    (${stats.indar.num.vs}, ${stats.indar.num.nc}, ${stats.indar.num.tr}, ${stats.indar.num.ns}, ${stats.hossin.num.vs}, ${stats.hossin.num.nc}, ${stats.hossin.num.tr}, ${stats.hossin.num.ns}, ${stats.amerish.num.vs}, ${stats.amerish.num.nc}, ${stats.amerish.num.tr}, ${stats.amerish.num.ns}, ${stats.esamir.num.vs}, ${stats.esamir.num.nc}, ${stats.esamir.num.tr}, ${stats.esamir.num.ns}, ${world_id}, ${args.interval})
+                    `);
+            }
+            catch (err) {
+                console.error(err);
+            }
+            finally {
+                db_conn.end();
+            }
         }
 
         async function editMessages(content, world_id) {
@@ -128,7 +121,7 @@ module.exports = {
 
             let timeout = 0;
             for (const world_id of worlds) {
-                setTimeout(() => worldMessageEditor(unique_arr.filter((v) => v.world_id == world_id)), timeout);
+                setTimeout(() => worldMessageEditor(unique_arr.filter((v) => v.world_id == world_id && 'zone_id' in v && parseInt(v.zone_id) >= 0)), timeout);
                 timeout += 1500;
             }
         }
