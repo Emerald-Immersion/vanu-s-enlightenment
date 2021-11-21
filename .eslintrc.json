@@ -8,8 +8,7 @@
 		"ecmaVersion": 2020
 	},
 	"globals": {
-        "paths": "readonly",
-		"constants": "readonly"
+        "paths": "readonly"
     },
 	"rules": {
 		"brace-style": ["error", "stroustrup", { "allowSingleLine": true }],
