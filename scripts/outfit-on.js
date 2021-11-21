@@ -7,6 +7,7 @@ module.exports = {
 
         const emoji_map = {
             ASP: await client.emojis.cache.get('699909620495548497'),
+            ASP2: await client.emojis.cache.get('911917762924929044'),
             120: await client.emojis.cache.get('701006810169081936'),
             VS: await client.emojis.cache.get('683285085818191976'),
             NC: await client.emojis.cache.get('683285084320694302'),
@@ -123,6 +124,9 @@ module.exports = {
                 break;
             case '1':
                 prestige_emoji = emoji_map.ASP;
+                break;
+            case '2':
+                prestige_emoji = emoji_map.ASP2;
                 break;
             default:
                 prestige_emoji = 'prestige level unkown, please report with a screenshot to brakenium';
