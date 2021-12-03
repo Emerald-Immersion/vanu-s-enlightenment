@@ -89,7 +89,7 @@ module.exports = {
         async function editMessages(content, world_id) {
             // const messages_for_world = messages.filter((obj) => obj.world_id == world_id);
             for (const message of messages.filter((obj) => obj.world_id == world_id)) {
-                message.message.edit(content + `. ID: ${message.autostart_ID}`);
+                message.message.edit(`${content}. ID: ${message.autostart_ID}`);
             }
         }
 

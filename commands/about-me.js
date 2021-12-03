@@ -11,7 +11,7 @@ module.exports = {
 
         const commands = fs.readdirSync('./commands/').filter(fn => fn.endsWith('.js'));
         const embed = new Discord.MessageEmbed()
-            .setColor()
+            // .setColor()
             .setTitle('About me')
             .setImage('https://github.com/Emerald-Immersion/vanu-s-enlightenment/raw/master/images/me.png')
             .setDescription('I am your friendly neighbourhood connection to Vanu. My work consists of enlightening fools, assisting The Vanu Sovereignty with information and helping followers of Vanu relax among other things.')
