@@ -52,25 +52,25 @@ module.exports = {
         function alertTypeToDuration(alert_type) {
             let duration;
             switch(alert_type) {
-                // Amp station/Tech plant/Biolab alert:
-                case '2':
-                    duration = '45 minutes';
-                    break;
-                    // Maximum Pressure:
-                case '6':
-                    duration = '30 minutes';
-                    break;
-                    // Continent lock alert:
-                case '9':
-                    duration = '1:30 hours';
-                    break;
-                    // Refine and Refuel, aerial anomalie, Race for Readings and Eye of the Storm:
-                case '10':
-                    duration = '30 minutes';
-                    break;
-                default:
-                    duration = 'No time specified for this alert, yet';
-                    break;
+            // Amp station/Tech plant/Biolab alert:
+            case '2':
+                duration = '45 minutes';
+                break;
+                // Maximum Pressure:
+            case '6':
+                duration = '30 minutes';
+                break;
+                // Continent lock alert:
+            case '9':
+                duration = '1:30 hours';
+                break;
+                // Refine and Refuel, aerial anomalie, Race for Readings and Eye of the Storm:
+            case '10':
+                duration = '30 minutes';
+                break;
+            default:
+                duration = 'No time specified for this alert, yet';
+                break;
             }
             return duration;
         }
@@ -191,22 +191,22 @@ module.exports = {
 
             // Edit the right message for the continent the alert came from
             switch(alert_zone_id) {
-                // Indar:
-                case '2':
-                    msg.edit(alert_embed);
-                    break;
-                    // Hossin:
-                case '4':
-                    msg.edit(alert_embed);
-                    break;
-                    // Amerish:
-                case '6':
-                    msg.edit(alert_embed);
-                    break;
-                    // Esamir:
-                case '8':
-                    msg.edit(alert_embed);
-                    break;
+            // Indar:
+            case '2':
+                msg.edit({ embeds: [ alert_embed ] });
+                break;
+                // Hossin:
+            case '4':
+                msg.edit({ embeds: [ alert_embed ] });
+                break;
+                // Amerish:
+            case '6':
+                msg.edit({ embeds: [ alert_embed ] });
+                break;
+                // Esamir:
+            case '8':
+                msg.edit({ embeds: [ alert_embed ] });
+                break;
             }
         }
 

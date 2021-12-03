@@ -133,7 +133,7 @@ ${genFacPop(pop.vs, pop.nc, pop.tr, pop.ns)}
 
             embed.addField('Time', formatTime(last_pop.timestamp) + ' UTC');
 
-            if (total_pop != 0) message.channel.send(embed);
+            if (total_pop != 0) message.channel.send({ embeds: [ embed ] });
             else message.channel.send('This server has no population');
         }
 

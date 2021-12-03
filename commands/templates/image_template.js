@@ -14,6 +14,6 @@ module.exports = {
 
         const RN1 = Math.random();
         const attachment = new Discord.MessageAttachment(path + files[Math.floor(RN1 * files.length)]);
-        message.channel.send(`Here is a picture of a ${this.name}:`, attachment);
+        message.channel.send({ content: `Here is a picture of a ${this.name}:`, files: [ attachment ] });
     },
 };

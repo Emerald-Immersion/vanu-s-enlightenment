@@ -50,7 +50,7 @@ module.exports = {
         const embed = new Discord.MessageEmbed();
         embed.setColor('DARK_PURPLE').setTitle(args.title).setFooter('Brought to you by: Vanu, bestower of knowledge');
         embed.setDescription(description.join('\n'));
-        message.edit('', embed);
+        message.edit({ embeds: [ embed ] });
     },
     // setup: {
     //     json: async ({ channel, responses }) => {

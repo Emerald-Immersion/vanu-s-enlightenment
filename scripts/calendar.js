@@ -175,7 +175,7 @@ module.exports = {
                 // Send Event Messages
                 events.forEach(event => {
                     const embed = createEmbed(event, calendarUrl);
-                    channel.send(embed).catch(err => {
+                    channel.send({ embeds: [ embed ] }).catch(err => {
                         console.error(err);
                         console.log(embed);
                     });

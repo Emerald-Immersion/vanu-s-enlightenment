@@ -20,7 +20,7 @@ module.exports = {
         }
         catch(error) {
             console.log('error with taggedRole', error);
-            message.channel.send('The role can\'t be found', error);
+            message.channel.send('The role can\'t be found');
         }
     },
 };

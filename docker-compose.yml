@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  vanu-s-enlightenment:
+    image: vanu-s-enlightenment
+    build:
+      context: .
+      dockerfile: ./Dockerfile
