@@ -9,7 +9,11 @@ const constants = require('./json/constants.json');
 
 const db_options = { host: config.mariadb.host, user: config.mariadb.user, password: config.mariadb.password, database: config.mariadb.database, port: config.mariadb.port };
 
-const client = new Discord.Client();
+const client = new Discord.Client({
+    partials: [
+        'CHANNEL',
+    ],
+});
 client.commands = new Discord.Collection();
 
 class guildSettingsObject {
@@ -131,7 +135,7 @@ function messageHandler(message) {
 
     // Checks if the command is only discord servers and if the request didn't come from one
     // it will not execute the command
-    if (command.guildOnly && message.channel.type !== 'text') {
+    if (command.guildOnly && message.channel.type !== 'GUILD_TEXT') {
         return message.reply('I can\'t execute that command inside DMs!');
     }
 
@@ -237,7 +241,7 @@ client.on('ready', async () => {
     autoStartScripts(config.autostart);
 });
 
-client.on('message', async message => {
+client.on('messageCreate', async message => {
     await settings_update;
     messageHandler(message);
 });

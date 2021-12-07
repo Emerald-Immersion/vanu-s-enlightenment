@@ -5,11 +5,12 @@ module.exports = {
     help: '!script <command, i.e help> [optional parameters]. Manage scripts. R', // Help information to show
     restricted: [], // Options: discord ID, role ID, role Name
     async execute(message, args) {
+        const Discord = require('Discord.js');
         const fs = require('fs');
         const path = require('path');
         const config = require(paths.files.config);
 
-        if (!message.member.hasPermission('ADMINISTRATOR') || message.author.id != config.author.discord_id) return;
+        if (!message.member.permissions.has(Discord.Permissions.ADMINISTRATOR) || message.author.id != config.author.discord_id) return;
 
         const extension = '.js';
         const script_path = path.join(paths.dirs.commands, 'script');
