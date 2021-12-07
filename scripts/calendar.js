@@ -148,6 +148,7 @@ module.exports = {
             const channel = await client.channels.fetch(channelId);
             const today = startOfDay(new Date());
             const end = new Date(today.getTime() + eventsWindow * 24 * 60 * 60 * 1000);
+            const previous_embeds = (await channel.messages.fetch()).map(message => message.embeds[0]).reverse();
 
             if (!channel) {
                 console.error(`Calendar: Couldn't get channel ${channelId}`);
@@ -169,17 +170,29 @@ module.exports = {
                 const events = calendar.eventsBetween(today, end)
                     .sort((e1, e2) => new Date(e1.start).getTime() - new Date(e2.start).getTime());
 
-                // Clear old Messages
-                await clearChannel(client, channelId);
 
-                // Send Event Messages
-                events.forEach(event => {
-                    const embed = createEmbed(event, calendarUrl);
-                    channel.send(embed).catch(err => {
-                        console.error(err);
-                        console.log(embed);
-                    });
-                });
+                // Generate embeds
+                const embeds = events.map(event => createEmbed(event, calendarUrl));
+
+                // Only update messages if changes are needed
+                let changes = false;
+                for (const index in embeds) {
+                    changes = !embedContentIsEqual(previous_embeds[index], embeds[index]);
+                    if (changes) break;
+                }
+
+                if (changes) {
+                    // Clear old Messages
+                    await clearChannel(client, channelId);
+
+                    // Send Event Messages
+                    for (const embed of embeds) {
+                        channel.send(embed).catch(err => {
+                            console.error(err);
+                            console.log(embed);
+                        });
+                    }
+                }
             }
             finally {
                 channel.stopTyping();
@@ -194,6 +207,36 @@ module.exports = {
         setTimeout(() => clearInterval(loop), 86340000);
     },
 };
+
+function embedContentIsEqual(embed0, embed1) {
+    if (embed0 == undefined || embed1 == undefined) return false;
+    if (embed0 == embed1) return true;
+
+    const fields = ['color', 'description', 'fields', 'files', 'title', 'type', 'url', 'video'];
+    let result = true;
+
+    for (const field of fields) {
+        const expression = (convertFieldToString(embed0[field]) != convertFieldToString(embed1[field]));
+        if (expression) result = false;
+    }
+
+    return result;
+}
+
+function convertFieldToString(object) {
+    // Trim string fields of object
+    if (object != null && typeof object === 'object') {
+        for (const field of object) {
+            if (typeof field != 'string') continue;
+            object[field] = field.trim();
+        }
+    }
+    // Convert to string in order to compare
+    const stringified = JSON.stringify(object)?.trim();
+
+    // Regard 'null' as undefined
+    return stringified == 'null' ? undefined : stringified;
+}
 
 function getRecurringEvents(vevent, startDate, endDate) {
     // For recurring events, we'll push a copy of the original event unless there's a
@@ -286,7 +329,7 @@ function createEmbed(event, url) {
         event.summary = 'Untitled';
     }
     if (!event.description) {
-        event.description = '‏‏‎ ';
+        event.description = '‏';
     }
 
     return new Discord.MessageEmbed()
