@@ -155,7 +155,7 @@ module.exports = {
                 return;
             }
 
-            channel.startTyping();
+            channel.sendTyping();
 
             try {
                 // Fetch Calendar
@@ -169,7 +169,6 @@ module.exports = {
                 const calendar = new Calendar(ical.parseICS(calResp.data));
                 const events = calendar.eventsBetween(today, end)
                     .sort((e1, e2) => new Date(e1.start).getTime() - new Date(e2.start).getTime());
-
 
                 // Generate embeds
                 const embeds = events.map(event => createEmbed(event, calendarUrl));
@@ -187,15 +186,15 @@ module.exports = {
 
                     // Send Event Messages
                     for (const embed of embeds) {
-                        channel.send(embed).catch(err => {
+                        channel.send({ embeds: [ embed ] }).catch(err => {
                             console.error(err);
                             console.log(embed);
                         });
                     }
                 }
             }
-            finally {
-                channel.stopTyping();
+            catch (err) {
+                console.error(err);
             }
         }
 
@@ -347,7 +346,8 @@ function startOfDay(date) {
 // Deletes all messages in a channel.
 async function clearChannel(client, channelID) {
     const channel = await client.channels.fetch(channelID);
-    const canManageMessages = channel.guild.me.permissionsIn(channel).has('MANAGE_MESSAGES');
+    const Permissions = require('discord.js').Permissions;
+    const canManageMessages = channel.guild.me.permissionsIn(channel).has(Permissions.FLAGS.MANAGE_MESSAGES);
 
     const messages = (await channel.messages.fetch({ limit: 100 }));
     const toDelete = messages.filter(m => m.author.id === client.user.id);

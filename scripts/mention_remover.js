@@ -8,7 +8,7 @@ module.exports = {
 
             // Create message collector and check if a message in said channel
             // has a mention of ${user} and is deletable by the bot
-            const msg_collector = channel.createMessageCollector(msg => msg.mentions.has(user) && msg.deletable);
+            const msg_collector = channel.createMessageCollector({ filter: msg => msg.mentions.has(user) && msg.deletable });
 
             // Delete any message that pass through the filter and warn the offending user
             msg_collector.on('collect', msg => {

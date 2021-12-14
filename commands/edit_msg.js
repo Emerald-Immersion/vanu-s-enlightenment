@@ -7,6 +7,12 @@ module.exports = {
     restricted: [], // Options: discord ID, role ID, role Name
     async execute(message, args, config, constants, client) {
         if (message.author.id != config.author.discord_id) return;
+
+        if (args.length <= 2) {
+            message.reply('please specify channel and message id');
+            return;
+        }
+
         const channel = await client.channels.cache.get(args[0]);
         const msg = await channel.messages.fetch(args[1]);
         await args.shift();

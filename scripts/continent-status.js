@@ -46,7 +46,7 @@ module.exports = {
         async function editMessage(embed, world_id, zone_name, suppressEmbeds) {
             for (const message of messages.filter((obj) => (obj.world_id == world_id))) {
                 if (suppressEmbeds) await message[zone_name].suppressEmbeds(suppressEmbeds);
-                message[zone_name].edit('‏‏‎ ‎', embed).catch((err) => console.log(err));
+                message[zone_name].edit({ embeds: [ embed ] }).catch((err) => console.log(err));
             }
         }
 

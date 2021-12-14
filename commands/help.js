@@ -13,7 +13,7 @@ module.exports = {
         data.push(`\`\`\`${commands.map(command => `${command.help}`).join('\n\n')}\`\`\``);
         data.push('R = Restricted, only usable with authorisation\nDM = usable in a DM\nWarning: custom prefix not shown');
 
-        return message.channel.send(data, { split: { prepend: '```', append: '```' } })
+        return message.channel.send(data.join('\n'))
             .catch(error => {
                 console.error('Could not send help message.\n', error);
                 message.reply('It seems like I can\'t send the help message!');
