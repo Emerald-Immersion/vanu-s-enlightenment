@@ -8,7 +8,6 @@ module.exports = {
     async execute(message, args) {
         try {
             const roleName = args.join(' ');
-            console.log(roleName);
             await message.guild.roles.fetch();
             const taggedRole = await message.guild.roles.cache.find(role => role.name == roleName);
 
@@ -19,7 +18,7 @@ module.exports = {
             message.channel.send(`**These people were found in the role:**\n${role_members.join('\n')}`);
         }
         catch(error) {
-            console.log('error with taggedRole', error);
+            console.error('error with taggedRole', error);
             message.channel.send('The role can\'t be found');
         }
     },

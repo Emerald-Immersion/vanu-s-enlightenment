@@ -16,7 +16,7 @@ const client = new Discord.Client({
     intents: [
         Discord.Intents.FLAGS.GUILDS,
         Discord.Intents.FLAGS.GUILD_MEMBERS,
-        Discord.Intents.FLAGS.GUILD_EMOJIS,
+        Discord.Intents.FLAGS.GUILD_EMOJIS_AND_STICKERS,
         Discord.Intents.FLAGS.GUILD_MESSAGES,
         Discord.Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
         Discord.Intents.FLAGS.DIRECT_MESSAGES,
@@ -232,11 +232,9 @@ for (const file of commandFiles) {
 }
 
 client.on('ready', async () => {
-    await guild_settings.addNewGuilds(client.guilds.cache.array().map(guild => guild.id));
+    await guild_settings.addNewGuilds([...client.guilds.cache.values()].map(guild => guild.id));
     await settings_update;
-    client.user.setActivity(config.bot.activity, { type: 'WATCHING' })
-        .then(console.log('Activity set to ' + config.bot.activity))
-        .catch(console.error);
+    client.user.setActivity(config.bot.activity, { type: 'WATCHING' });
     console.log('The bot is online!');
 
     config.rmOldMSG.forEach(element => {
