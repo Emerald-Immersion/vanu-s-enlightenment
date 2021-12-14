@@ -9,10 +9,18 @@ module.exports = {
         const fs = require('fs');
         const Discord = require('discord.js');
 
-        const files = fs.readdirSync('./images/trucks/');
+        const path = './images/trucks/';
 
-        const RN1 = Math.random();
-        const attachment = new Discord.MessageAttachment('./images/trucks/' + files[Math.floor(RN1 * files.length)]);
-        message.channel.send({ content: 'Here is a picture of a truck:', files: attachment });
+        const files = fs.readdirSync(path);
+
+        if (files.length > 0) {
+            const RN1 = Math.random();
+            const attachment = new Discord.MessageAttachment('./images/trucks/' + files[Math.floor(RN1 * files.length)]);
+            message.channel.send({ content: 'Here is a picture of a truck:', files: [ attachment ] });
+        }
+        else {
+            message.reply('No images found');
+            console.error('No images found', `path: ${path}\nfiles: ${files}\nCommand: ${this.name}`);
+        }
     },
 };

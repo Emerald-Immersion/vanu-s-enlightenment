@@ -12,13 +12,13 @@ module.exports = {
 
         const emoji = ['683285044345045010', '683285044416217148', '683285045540159491', '683285051970289808', '683285051928215565', '683285049595920385', '683285084320694302', '683285084463431720', '683285085818191976', '699909620495548497', '701006810169081936', '722814368022134790', '722814368286244924', '722814368366067792', '722814368370130964', '722816185606864896', '722816749707198574'];
 
-        if (!guild.me.hasPermission('MANAGE_ROLES')) {
+        if (!guild.me.permissions.has(Discord.Permissions.FLAGS.ADMINISTRATOR)) {
             channel.send('No permission for managing roles');
             return;
         }
 
         async function reactionHandler(reaction, user, action) {
-            const guild_user = await guild.member(user);
+            const guild_user = await guild.members.cache.get(user.id);
             if (guild_user === undefined) return;
 
             const emoji_index = emoji.findIndex(id => id == reaction.emoji.id);
@@ -33,7 +33,7 @@ module.exports = {
         }
 
         // Reaction collecter, reaction add and remove event handlers
-        const collector = message.createReactionCollector(reactionFilter, { dispose: true });
+        const collector = message.createReactionCollector({ filter: reactionFilter, dispose: true });
         collector.on('collect', async (reaction, user) => reactionHandler(reaction, user, 'add'));
         collector.on('remove', async (reaction, user) => reactionHandler(reaction, user, 'remove'));
 

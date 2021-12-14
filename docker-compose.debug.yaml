@@ -1,0 +1,40 @@
+version: "3"
+
+volumes:
+  db:
+
+services:
+  bot:
+    build: .
+    volumes:
+      - ./json/config.json:/usr/src/app/json/config.json
+      - ./log/:/usr/src/app/log/
+      - ./txt/ps2news_lastcheckdate.txt:/usr/src/app/txt/ps2news_lastcheckdate.txt
+      - ./images:/usr/src/app/images
+    restart: unless-stopped
+
+  db:
+    image: mariadb
+    volumes:
+      - db:/var/lib/mysql
+      # Import the Database
+      - ./db_create_tables.sql:/docker-entrypoint-initdb.d/db_create_tables.sql
+    environment:
+      MARIADB_ROOT_PASSWORD: RootChangeMe
+      # Create the database and user
+      # Make sure to change the config.json accordingly
+      MARIADB_DATABASE: vanu-s-enlightenment
+      MARIADB_USER: vanu-s-enlightenment
+      MARIADB_PASSWORD: UserChangeMe
+    restart: unless-stopped
+
+  phpmyadmin:
+    image: phpmyadmin
+    ports:
+      - 8080:80
+    environment:
+      PMA_ARBITRARY: 1
+      PMA_HOST: db
+      PMA_USER: root
+      PMA_PASSWORD: RootChangeMe
+    restart: unless-stopped

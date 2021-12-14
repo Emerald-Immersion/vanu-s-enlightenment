@@ -9,7 +9,20 @@ const constants = require('./json/constants.json');
 
 const db_options = { host: config.mariadb.host, user: config.mariadb.user, password: config.mariadb.password, database: config.mariadb.database, port: config.mariadb.port };
 
-const client = new Discord.Client();
+const client = new Discord.Client({
+    partials: [
+        'CHANNEL',
+    ],
+    intents: [
+        Discord.Intents.FLAGS.GUILDS,
+        Discord.Intents.FLAGS.GUILD_MEMBERS,
+        Discord.Intents.FLAGS.GUILD_EMOJIS_AND_STICKERS,
+        Discord.Intents.FLAGS.GUILD_MESSAGES,
+        Discord.Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
+        Discord.Intents.FLAGS.DIRECT_MESSAGES,
+        Discord.Intents.FLAGS.DIRECT_MESSAGE_REACTIONS,
+    ],
+});
 client.commands = new Discord.Collection();
 
 class guildSettingsObject {
@@ -131,7 +144,7 @@ function messageHandler(message) {
 
     // Checks if the command is only discord servers and if the request didn't come from one
     // it will not execute the command
-    if (command.guildOnly && message.channel.type !== 'text') {
+    if (command.guildOnly && message.channel.type !== 'GUILD_TEXT') {
         return message.reply('I can\'t execute that command inside DMs!');
     }
 
@@ -219,11 +232,9 @@ for (const file of commandFiles) {
 }
 
 client.on('ready', async () => {
-    await guild_settings.addNewGuilds(client.guilds.cache.array().map(guild => guild.id));
+    await guild_settings.addNewGuilds([...client.guilds.cache.values()].map(guild => guild.id));
     await settings_update;
-    client.user.setActivity(config.bot.activity, { type: 'WATCHING' })
-        .then(console.log('Activity set to ' + config.bot.activity))
-        .catch(console.error);
+    client.user.setActivity(config.bot.activity, { type: 'WATCHING' });
     console.log('The bot is online!');
 
     config.rmOldMSG.forEach(element => {
@@ -237,7 +248,7 @@ client.on('ready', async () => {
     autoStartScripts(config.autostart);
 });
 
-client.on('message', async message => {
+client.on('messageCreate', async message => {
     await settings_update;
     messageHandler(message);
 });
