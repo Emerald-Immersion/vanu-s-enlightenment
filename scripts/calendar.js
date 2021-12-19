@@ -148,7 +148,18 @@ module.exports = {
             const channel = await client.channels.fetch(channelId);
             const today = startOfDay(new Date());
             const end = new Date(today.getTime() + eventsWindow * 24 * 60 * 60 * 1000);
-            const previous_embeds = (await channel.messages.fetch()).map(message => message.embeds[0]).reverse();
+            // Fetch all previous messages from channel. Put the messages in an array.
+            // Filter out messages not sent by the bot. Reverse array to show them in order from oldest (0) to newest (1 or higher)
+            const previous_messages = (await channel.messages.fetch()).map(message => message).filter(m => m?.author?.id === client?.user?.id).reverse();
+
+            const existing_message = previous_messages.length > 0;
+
+            // Use the newest message to edit
+            const msg_to_edit = previous_messages.pop();
+
+            for (const to_delete of previous_messages) {
+                to_delete.delete();
+            }
 
             if (!channel) {
                 console.error(`Calendar: Couldn't get channel ${channelId}`);
@@ -166,31 +177,25 @@ module.exports = {
                 }
 
                 // Parse and Sort (Closest event first)
+                // Only show the first 10 events
                 const calendar = new Calendar(ical.parseICS(calResp.data));
                 const events = calendar.eventsBetween(today, end)
-                    .sort((e1, e2) => new Date(e1.start).getTime() - new Date(e2.start).getTime());
+                    .sort((e1, e2) => new Date(e1.start).getTime() - new Date(e2.start).getTime()).slice(0, 9);
+
+                if (events.length <= 0) return;
 
                 // Generate embeds
                 const embeds = events.map(event => createEmbed(event, calendarUrl));
 
-                // Only update messages if changes are needed
-                let changes = false;
-                for (const index in embeds) {
-                    changes = !embedContentIsEqual(previous_embeds[index], embeds[index]);
-                    if (changes) break;
+                // Send a message of none exist
+                if (existing_message) {
+                    msg_to_edit.edit({ embeds }).catch(err => {
+                        console.error(err);
+                        console.log(embeds);
+                    });
                 }
-
-                if (changes) {
-                    // Clear old Messages
-                    await clearChannel(client, channelId);
-
-                    // Send Event Messages
-                    for (const embed of embeds) {
-                        channel.send({ embeds: [ embed ] }).catch(err => {
-                            console.error(err);
-                            console.log(embed);
-                        });
-                    }
+                else {
+                    await channel.send({ embeds });
                 }
             }
             catch (err) {
@@ -206,36 +211,6 @@ module.exports = {
         setTimeout(() => clearInterval(loop), 86340000);
     },
 };
-
-function embedContentIsEqual(embed0, embed1) {
-    if (embed0 == undefined || embed1 == undefined) return false;
-    if (embed0 == embed1) return true;
-
-    const fields = ['color', 'description', 'fields', 'files', 'title', 'type', 'url', 'video'];
-    let result = true;
-
-    for (const field of fields) {
-        const expression = (convertFieldToString(embed0[field]) != convertFieldToString(embed1[field]));
-        if (expression) result = false;
-    }
-
-    return result;
-}
-
-function convertFieldToString(object) {
-    // Trim string fields of object
-    if (object != null && typeof object === 'object') {
-        for (const field of object) {
-            if (typeof field != 'string') continue;
-            object[field] = field.trim();
-        }
-    }
-    // Convert to string in order to compare
-    const stringified = JSON.stringify(object)?.trim();
-
-    // Regard 'null' as undefined
-    return stringified == 'null' ? undefined : stringified;
-}
 
 function getRecurringEvents(vevent, startDate, endDate) {
     // For recurring events, we'll push a copy of the original event unless there's a
@@ -341,35 +316,6 @@ function createEmbed(event, url) {
 
 function startOfDay(date) {
     return new Date(date.getFullYear(), date.getMonth(), date.getDate());
-}
-
-// Deletes all messages in a channel.
-async function clearChannel(client, channelID) {
-    const channel = await client.channels.fetch(channelID);
-    const Permissions = require('discord.js').Permissions;
-    const canManageMessages = channel.guild.me.permissionsIn(channel).has(Permissions.FLAGS.MANAGE_MESSAGES);
-
-    const messages = (await channel.messages.fetch({ limit: 100 }));
-    const toDelete = messages.filter(m => m.author.id === client.user.id);
-
-    const now = new Date().getTime();
-    const anyOlderThan2Weeks = msgs => msgs.some(msg => now - msg.createdTimestamp >= 2 * 7 * 24 * 60 * 60 * 1000);
-
-    if (canManageMessages && toDelete.size <= 100 && toDelete.size >= 2 && !anyOlderThan2Weeks(toDelete)) {
-        return channel.bulkDelete(toDelete);
-    }
-    else {
-        return Promise.all(toDelete.map(m => m.delete()));
-    }
-}
-
-// iCal provides start and end date as JS Date objects
-// with an additional 'tz' field containing the date's
-// timezone.
-// This function converts that to UTC and returns a new Date object
-function DateTimeInTZ(date, tz) {
-    date.tz = tz;
-    return date;
 }
 
 // Embellish a Date from RRule with the extra data needed to handle timezone conversion
