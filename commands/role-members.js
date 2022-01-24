@@ -9,6 +9,8 @@ module.exports = {
         try {
             const roleName = args.join(' ');
             await message.guild.roles.fetch();
+            await message.guild.members.fetch();
+
             const taggedRole = await message.guild.roles.cache.find(role => role.name == roleName);
 
             const role_members = await taggedRole.members.map(element => {
