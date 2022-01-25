@@ -12,6 +12,7 @@ module.exports = {
             VS: await client.emojis.cache.get('683285085818191976'),
             NC: await client.emojis.cache.get('683285084320694302'),
             TR: await client.emojis.cache.get('683285084463431720'),
+            NS: await client.emojis.cache.get('722816749707198574'),
             MX: await client.emojis.cache.get('683285051970289808'),
             LA: await client.emojis.cache.get('683285051928215565'),
             IF: await client.emojis.cache.get('683285045540159491'),
@@ -57,7 +58,7 @@ module.exports = {
 
         async function messageUpdaterCensus() {
             console.log('updating online players');
-            const request = await getRequest(`http://census.daybreakgames.com/s:${config.dbg_api.service_id}/get/ps2:v2/outfit?alias=${args.outfit_alias}&c:resolve=member&c:case=false&c:show=outfit_id,name,alias,alias_lower,member_count&c:join=character^on:members.character_id^to:character_id^inject_at:character^show:name.first%27battle_rank.value%27prestige_level%27profile_id(profile^to:profile_id^show:profile_type_id^inject_at:profile),characters_online_status^to:character_id^on:members.character_id^inject_at:character^show:online_status`).catch((err) => console.log(err));
+            const request = await getRequest(`http://census.daybreakgames.com/s:${config.dbg_api.service_id}/get/ps2:v2/outfit?alias=${args.outfit_alias}&c:resolve=member&c:case=false&c:show=outfit_id,name,alias,alias_lower,member_count&c:join=character^on:members.character_id^to:character_id^inject_at:character^show:faction_id'name.first'battle_rank.value'prestige_level'profile_id(profile^to:profile_id^show:profile_type_id^inject_at:profile),characters_online_status^to:character_id^on:members.character_id^inject_at:character^show:online_status`).catch((err) => console.log(err));
             if (request.data.error != undefined) {
                 return console.log('outfit_members undefined');
             }
@@ -160,7 +161,7 @@ module.exports = {
 
             const battle_rank = charactersWhitespaces(undefined, member.character.battle_rank.value.length + 29, member.character.battle_rank.value);
             const member_name = charactersWhitespaces(member.character.name.first, member.character.name.first.length);
-            return `\`${member_name}\` ${prestige_emoji}\`${battle_rank}\` ${class_emoji} Rank: ${member.rank}`;
+            return `\`${member_name}\` ${prestige_emoji}\`${battle_rank}\` ${class_emoji} Rank: ${member.rank}${member.character.faction_id == '4' ? ` ${emoji_map.NS}` : '' }`;
         }
 
         function charactersWhitespaces(str_front, char_length, str_back) {
