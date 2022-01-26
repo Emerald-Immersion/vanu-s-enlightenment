@@ -23,6 +23,7 @@ module.exports = {
             const hossin = unique_arr.filter((e) => e.zone_id == '4');
             const amerish = unique_arr.filter((e) => e.zone_id == '6');
             const esamir = unique_arr.filter((e) => e.zone_id == '8');
+            const oshur = unique_arr.filter((e) => e.zone_id == '344');
 
             const stats = {
                 all: unique_arr.length,
@@ -62,26 +63,36 @@ module.exports = {
                         ns: (loadout_idToFaction_id(esamir, undefined, true)).length,
                     },
                 },
+                oshur:  {
+                    num: {
+                        all: esamir.length,
+                        vs: (loadout_idToFaction_id(oshur, '1')).length,
+                        nc: (loadout_idToFaction_id(oshur, '2')).length,
+                        tr: (loadout_idToFaction_id(oshur, '3')).length,
+                        ns: (loadout_idToFaction_id(oshur, undefined, true)).length,
+                    },
+                },
             };
 
             stats.indar.percent = (stats.indar.num.all / stats.all * 100).toFixed(0);
             stats.hossin.percent = (stats.hossin.num.all / stats.all * 100).toFixed(0);
             stats.amerish.percent = (stats.amerish.num.all / stats.all * 100).toFixed(0);
             stats.esamir.percent = (stats.esamir.num.all / stats.all * 100).toFixed(0);
+            stats.oshur.percent = (stats.oshur.num.all / stats.all * 100).toFixed(0);
 
             const date = new Date;
             const date_string = `${intToTwoDigits(date.getUTCHours())}:${intToTwoDigits(date.getUTCMinutes())} ${intToTwoDigits(date.getUTCDate())}-${intToTwoDigits(date.getUTCMonth() + 1)} UTC`;
 
-            const content = `Indar: ${stats.indar.num.all} (${stats.indar.percent}%)\nHossin: ${stats.hossin.num.all} (${stats.hossin.percent}%)\nAmerish: ${stats.amerish.num.all} (${stats.amerish.percent}%)\nEsamir: ${stats.esamir.num.all} (${stats.esamir.percent}%)\nTotal: ${stats.all}`;
+            const content = `Indar: ${stats.indar.num.all} (${stats.indar.percent}%)\nHossin: ${stats.hossin.num.all} (${stats.hossin.percent}%)\nAmerish: ${stats.amerish.num.all} (${stats.amerish.percent}%)\nEsamir: ${stats.esamir.num.all} (${stats.esamir.percent}%)\nOshur: ${stats.oshur.num.all} (${stats.oshur.percent}%)\nTotal: ${stats.all}`;
             editMessages(`Active players for ${worlds_info.filter((obj) => obj.world_id == world_id)[0].name}:\`\`\`json\n${content}\`\`\`Last update: ${date_string}. Next update in ${args.interval / 60000} minutes`, world_id);
             appendFile('./log/pop.log', content + '\n');
 
             const db_conn = await mariadb.createConnection(db_options);
             await db_conn.query(`
                 INSERT INTO continent_population
-                (indar_vs, indar_nc, indar_tr, indar_ns, hossin_vs, hossin_nc, hossin_tr, hossin_ns, amerish_vs, amerish_nc, amerish_tr, amerish_ns, esamir_vs, esamir_nc, esamir_tr, esamir_ns, world_id, gather_time)
+                (indar_vs, indar_nc, indar_tr, indar_ns, hossin_vs, hossin_nc, hossin_tr, hossin_ns, amerish_vs, amerish_nc, amerish_tr, amerish_ns, esamir_vs, esamir_nc, esamir_tr, esamir_ns, oshur_vs, oshur_nc, oshur_tr, oshur_ns, world_id, gather_time)
                 VALUES
-                (${stats.indar.num.vs}, ${stats.indar.num.nc}, ${stats.indar.num.tr}, ${stats.indar.num.ns}, ${stats.hossin.num.vs}, ${stats.hossin.num.nc}, ${stats.hossin.num.tr}, ${stats.hossin.num.ns}, ${stats.amerish.num.vs}, ${stats.amerish.num.nc}, ${stats.amerish.num.tr}, ${stats.amerish.num.ns}, ${stats.esamir.num.vs}, ${stats.esamir.num.nc}, ${stats.esamir.num.tr}, ${stats.esamir.num.ns}, ${world_id}, ${args.interval})
+                (${stats.indar.num.vs}, ${stats.indar.num.nc}, ${stats.indar.num.tr}, ${stats.indar.num.ns}, ${stats.hossin.num.vs}, ${stats.hossin.num.nc}, ${stats.hossin.num.tr}, ${stats.hossin.num.ns}, ${stats.amerish.num.vs}, ${stats.amerish.num.nc}, ${stats.amerish.num.tr}, ${stats.amerish.num.ns}, ${stats.esamir.num.vs}, ${stats.esamir.num.nc}, ${stats.esamir.num.tr}, ${stats.esamir.num.ns}, ${stats.oshur.num.vs}, ${stats.oshur.num.nc}, ${stats.oshur.num.tr}, ${stats.oshur.num.ns}, ${world_id}, ${args.interval})
                 `).catch(err => console.log(err));
             db_conn.end();
         }
