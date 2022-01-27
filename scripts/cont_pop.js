@@ -65,7 +65,7 @@ module.exports = {
                 },
                 oshur:  {
                     num: {
-                        all: esamir.length,
+                        all: oshur.length,
                         vs: (loadout_idToFaction_id(oshur, '1')).length,
                         nc: (loadout_idToFaction_id(oshur, '2')).length,
                         tr: (loadout_idToFaction_id(oshur, '3')).length,
