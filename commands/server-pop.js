@@ -97,10 +97,12 @@ Total: **${total}**
             const db_conn = await mariadb.createConnection({ host: config.mariadb.host, user: config.mariadb.user, password: config.mariadb.password, database: config.mariadb.database, port: config.mariadb.port });
             const last_pop = (await db_conn.query('SELECT * FROM `continent_population` WHERE world_id = ? ORDER BY pop_item_ID DESC LIMIT 1', [world.world_id]))[0];
             db_conn.end();
+            const current_zone_ids = ['2', '4', '6', '8', '344'];
 
             if (last_pop == undefined) return message.channel.send('Server does not have population data available');
             let total_pop = 0;
-            for (const zone of constants.zones.filter(v => ['2', '4', '6', '8'].includes(v.zone_id))) {
+            for (const zone of constants.zones.filter(v => current_zone_ids.includes(v.zone_id))) {
+                console.log(zone);
                 for (const faction of ['vs', 'nc', 'tr', 'ns']) {
                     total_pop += last_pop[zone.name.toLowerCase() + '_' + faction];
                 }
@@ -113,7 +115,7 @@ Total: **${total}**
                 .setFooter('Percentages are rounded to the nearest integer')
                 .setColor('#599FAB');
 
-            for (const zone of constants.zones.filter(v => ['2', '4', '6', '8'].includes(v.zone_id))) {
+            for (const zone of constants.zones.filter(v => current_zone_ids.includes(v.zone_id))) {
                 const pop = {
                     vs: last_pop[zone.name.toLowerCase() + '_vs'],
                     nc: last_pop[zone.name.toLowerCase() + '_nc'],

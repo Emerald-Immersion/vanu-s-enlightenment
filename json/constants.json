@@ -61,6 +61,13 @@
       "color": "#FFFFFE"
     },
     {
+      "zone_id": "344",
+      "name": "Oshur",
+      "description": "",
+      "thumbnail": "",
+      "color": ""
+    },
+    {
       "zone_id": "other",
       "name": "No continent specified for this alert yet",
       "description": "No description specified"
