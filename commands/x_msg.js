@@ -13,7 +13,7 @@ module.exports = {
                         msg.edit(`**${msg.id}**`);
                     }
                     else {
-                        msg.edit(msg.id);
+                        msg.edit(`${msg.id}`);
                     }
                 });
         }

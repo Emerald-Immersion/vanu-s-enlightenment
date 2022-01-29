@@ -102,7 +102,7 @@ module.exports = {
                         else {
                             mentions = 'Mentions: none';
                         }
-                        channel.send(mentions, embed);
+                        channel.send({ embeds: [ embed ] });
                     }
                 });
             }

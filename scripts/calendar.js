@@ -148,13 +148,25 @@ module.exports = {
             const channel = await client.channels.fetch(channelId);
             const today = startOfDay(new Date());
             const end = new Date(today.getTime() + eventsWindow * 24 * 60 * 60 * 1000);
+            // Fetch all previous messages from channel. Put the messages in an array.
+            // Filter out messages not sent by the bot. Reverse array to show them in order from oldest (0) to newest (1 or higher)
+            const previous_messages = (await channel.messages.fetch()).map(message => message).filter(m => m?.author?.id === client?.user?.id).reverse();
+
+            const existing_message = previous_messages.length > 0;
+
+            // Use the newest message to edit
+            const msg_to_edit = previous_messages.pop();
+
+            for (const to_delete of previous_messages) {
+                to_delete.delete();
+            }
 
             if (!channel) {
                 console.error(`Calendar: Couldn't get channel ${channelId}`);
                 return;
             }
 
-            channel.startTyping();
+            channel.sendTyping();
 
             try {
                 // Fetch Calendar
@@ -165,24 +177,29 @@ module.exports = {
                 }
 
                 // Parse and Sort (Closest event first)
+                // Only show the first 10 events
                 const calendar = new Calendar(ical.parseICS(calResp.data));
                 const events = calendar.eventsBetween(today, end)
-                    .sort((e1, e2) => new Date(e1.start).getTime() - new Date(e2.start).getTime());
+                    .sort((e1, e2) => new Date(e1.start).getTime() - new Date(e2.start).getTime()).slice(0, 9);
 
-                // Clear old Messages
-                await clearChannel(client, channelId);
+                if (events.length <= 0) return;
 
-                // Send Event Messages
-                events.forEach(event => {
-                    const embed = createEmbed(event, calendarUrl);
-                    channel.send(embed).catch(err => {
+                // Generate embeds
+                const embeds = events.map(event => createEmbed(event, calendarUrl));
+
+                // Send a message of none exist
+                if (existing_message) {
+                    msg_to_edit.edit({ embeds }).catch(err => {
                         console.error(err);
-                        console.log(embed);
+                        console.log(embeds);
                     });
-                });
+                }
+                else {
+                    await channel.send({ embeds });
+                }
             }
-            finally {
-                channel.stopTyping();
+            catch (err) {
+                console.error(err);
             }
         }
 
@@ -286,7 +303,7 @@ function createEmbed(event, url) {
         event.summary = 'Untitled';
     }
     if (!event.description) {
-        event.description = '‏‏‎ ';
+        event.description = '‏';
     }
 
     return new Discord.MessageEmbed()
@@ -299,34 +316,6 @@ function createEmbed(event, url) {
 
 function startOfDay(date) {
     return new Date(date.getFullYear(), date.getMonth(), date.getDate());
-}
-
-// Deletes all messages in a channel.
-async function clearChannel(client, channelID) {
-    const channel = await client.channels.fetch(channelID);
-    const canManageMessages = channel.guild.me.permissionsIn(channel).has('MANAGE_MESSAGES');
-
-    const messages = (await channel.messages.fetch({ limit: 100 }));
-    const toDelete = messages.filter(m => m.author.id === client.user.id);
-
-    const now = new Date().getTime();
-    const anyOlderThan2Weeks = msgs => msgs.some(msg => now - msg.createdTimestamp >= 2 * 7 * 24 * 60 * 60 * 1000);
-
-    if (canManageMessages && toDelete.size <= 100 && toDelete.size >= 2 && !anyOlderThan2Weeks(toDelete)) {
-        return channel.bulkDelete(toDelete);
-    }
-    else {
-        return Promise.all(toDelete.map(m => m.delete()));
-    }
-}
-
-// iCal provides start and end date as JS Date objects
-// with an additional 'tz' field containing the date's
-// timezone.
-// This function converts that to UTC and returns a new Date object
-function DateTimeInTZ(date, tz) {
-    date.tz = tz;
-    return date;
 }
 
 // Embellish a Date from RRule with the extra data needed to handle timezone conversion

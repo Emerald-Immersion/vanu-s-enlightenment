@@ -9,7 +9,6 @@ module.exports = {
 
         const config = require('../json/config.json');
         const constants = require('../json/constants.json');
-        // If this module is to be used, please edit the usage for zones.js
         const zones = require('../js/zones');
 
         const DBG_ws = new WebSocket('wss://push.planetside2.com/streaming?environment=ps2&service-id=s:' + config.dbg_api.service_id);
@@ -47,7 +46,7 @@ module.exports = {
         async function editMessage(embed, world_id, zone_name, suppressEmbeds) {
             for (const message of messages.filter((obj) => (obj.world_id == world_id))) {
                 if (suppressEmbeds) await message[zone_name].suppressEmbeds(suppressEmbeds);
-                message[zone_name].edit('‏‏‎ ‎', embed).catch((err) => console.log(err));
+                message[zone_name].edit({ embeds: [ embed ] }).catch((err) => console.log(err));
             }
         }
 

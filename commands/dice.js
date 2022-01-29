@@ -6,7 +6,7 @@ module.exports = {
     help: '!dice <amount of sides>; Rolls a dice with x amount of sides. Default of 6. DM', // Help information to show
     restricted: [], // Options: discord ID, role ID, role Name
     async execute(message, args, config) {
-        message.channel.startTyping();
+        message.channel.sendTyping();
 
         let requestedSides = 6;
         const intParsedInput = parseInt(args[0]);
@@ -16,7 +16,6 @@ module.exports = {
                 requestedSides = intParsedInput;
             }
             else {
-                message.channel.stopTyping();
                 return message.channel.send('Incorrect argument');
             }
         }
@@ -24,7 +23,6 @@ module.exports = {
         // Do the math, pick an inclusive rounded random number between 1 and 6 (default) or a specified number
         const sideRolled = Math.round(Math.random() * (requestedSides - 1) + 1);
 
-        message.channel.stopTyping();
         message.channel.send(`You rolled side **${sideRolled}** out of **${requestedSides}** sides`);
     },
 };

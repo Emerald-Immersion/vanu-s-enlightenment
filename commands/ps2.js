@@ -12,8 +12,14 @@ module.exports = {
 
         const files = fs.readdirSync(path);
 
-        const RN1 = Math.random();
-        const attachment = new Discord.MessageAttachment(path + files[Math.floor(RN1 * files.length)]);
-        message.channel.send(`Here is a picture of a ${this.name}:`, attachment);
+        if (files.length > 0) {
+            const RN1 = Math.random();
+            const attachment = new Discord.MessageAttachment(path + files[Math.floor(RN1 * files.length)]);
+            message.channel.send({ content: `Here is a picture of a ${this.name}:`, files: [ attachment ] });
+        }
+        else {
+            message.reply('No images found');
+            console.error('No images found', `path: ${path}\nfiles: ${files}\nCommand: ${this.name}`);
+        }
     },
 };

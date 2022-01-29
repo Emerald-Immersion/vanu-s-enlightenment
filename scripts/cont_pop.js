@@ -58,7 +58,7 @@ module.exports = {
             const date = new Date;
             const date_string = `${intToTwoDigits(date.getUTCHours())}:${intToTwoDigits(date.getUTCMinutes())} ${intToTwoDigits(date.getUTCDate())}-${intToTwoDigits(date.getUTCMonth() + 1)} UTC`;
 
-            const content = `Indar: ${stats.indar.num.all} (${stats.indar.percent}%)\nHossin: ${stats.hossin.num.all} (${stats.hossin.percent}%)\nAmerish: ${stats.amerish.num.all} (${stats.amerish.percent}%)\nEsamir: ${stats.esamir.num.all} (${stats.esamir.percent}%)\nTotal: ${stats.all}`;
+            const content = `Indar: ${stats.indar.num.all} (${stats.indar.percent}%)\nHossin: ${stats.hossin.num.all} (${stats.hossin.percent}%)\nAmerish: ${stats.amerish.num.all} (${stats.amerish.percent}%)\nEsamir: ${stats.esamir.num.all} (${stats.esamir.percent}%)\nOshur: ${stats.oshur.num.all} (${stats.oshur.percent}%)\nTotal: ${stats.all}`;
             editMessages(`Active players for ${worlds_info.filter((obj) => obj.world_id == world_id)[0].name}:\`\`\`json\n${content}\`\`\`Last update: ${date_string}. Next update in ${args.interval / 60000} minutes`, world_id);
             appendFile('./log/pop.log', content + '\n');
 
@@ -82,7 +82,7 @@ module.exports = {
         async function editMessages(content, world_id) {
             // const messages_for_world = messages.filter((obj) => obj.world_id == world_id);
             for (const message of messages.filter((obj) => obj.world_id == world_id)) {
-                message.message.edit(content + `. ID: ${message.autostart_ID}`);
+                message.message.edit(`${content}. ID: ${message.autostart_ID}`);
             }
         }
 

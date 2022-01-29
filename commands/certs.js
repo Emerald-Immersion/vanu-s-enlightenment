@@ -177,8 +177,18 @@ module.exports = {
     help: '!certs <username> <cert group>; Shows certification progress\n!certs groups; Shows all available certification groups', // Help information to show
     restricted: [], // Options: discord ID, role ID, role Name
     async execute(message, args) {
-        const { get } = require('../js/census_rest.js');
+        if (args.length < 1) {
+            message.reply('Please use arguments or use !help for more info');
+            return;
+        }
+
         const { list: cert_groups } = require('./certs/cert_groups.js');
+        if (args[0] == 'groups') {
+            message.reply('Available cert groups:\n> ' + cert_groups.map(v => v.name).join('\n'));
+            return;
+        }
+
+        const { get } = require('../js/census_rest.js');
         const query = await get(encodeURI(`character?name.first_lower=${args[0].toLowerCase()}`), 'count', true);
         if (query == undefined) {
             return message.reply('API unreachable');

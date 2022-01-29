@@ -9,19 +9,17 @@
   },
   "dependencies": {
     "axios": "^0.21.1",
-    "bufferutil": "^4.0.1",
-    "discord.js": "^12.5.1",
+    "discord.js": "^13.3.1",
+    "ical": "^0.8.0",
     "jsonpath-plus": "^1.1.0",
     "mariadb": "^2.4.0",
     "rrule": "^2.6.8",
-    "ical": "^0.8.0",
     "rss-parser": "^3.7.5",
-    "utf-8-validate": "^5.0.2",
     "ws": "^7.2.3"
   },
   "devDependencies": {
     "acorn": "^8.1.0",
-    "eslint": "^6.8.0"
+    "eslint": "^8.7.0"
   },
   "scripts": {
     "test": "node --inspect index.js",
