@@ -269,6 +269,9 @@ function htmlToDiscordMarkdown(html) {
     // Underline
     out = out.replace(/<\/?(u)>/g, '__');
 
+    // Remove 2 back to back underlines
+    out = out.replace(/____/g, '');
+
     // Bullet Points
     out = out.replace(/<ul>(.*?)<\/ul>/g, (m, p1) => {
         return p1.replace(/<li>(.*?)<\/li>/g, '- $1\n');
@@ -286,6 +289,11 @@ function htmlToDiscordMarkdown(html) {
 
     // Remove <span>
     out = out.replace(/<\/?span>/g, '');
+
+    // Remove <html-blob>
+    out = out.replace(/<\/?html-blob>/g, '');
+
+    console.log(out);
 
     return out;
 }
