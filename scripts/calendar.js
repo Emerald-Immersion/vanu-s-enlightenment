@@ -146,6 +146,8 @@ module.exports = {
             const eventsWindow = autostart.args[0].events_window || 7;
 
             const channel = await client.channels.fetch(channelId);
+            const guild = channel.guild;
+            const guildevents = await guild.scheduledEvents.fetch();
             const today = startOfDay(new Date());
             const end = new Date(today.getTime() + eventsWindow * 24 * 60 * 60 * 1000);
             // Fetch all previous messages from channel. Put the messages in an array.
@@ -292,6 +294,10 @@ function htmlToDiscordMarkdown(html) {
 
 function formatTime(date) {
     return ('0' + date.getHours()).slice(-2) + ':' + ('0' + date.getMinutes()).slice(-2);
+}
+
+function createGuildScheduledEvents() {
+    
 }
 
 function createEmbed(event, url) {
