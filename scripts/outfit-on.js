@@ -59,7 +59,7 @@ module.exports = {
         async function messageUpdaterCensus() {
             console.log('updating online players');
             const request = await getRequest(`http://census.daybreakgames.com/s:${config.dbg_api.service_id}/get/ps2:v2/outfit?alias=${args.outfit_alias}&c:resolve=member&c:case=false&c:show=outfit_id,name,alias,alias_lower,member_count&c:join=character^on:members.character_id^to:character_id^inject_at:character^show:faction_id'name.first'battle_rank.value'prestige_level'profile_id(profile^to:profile_id^show:profile_type_id^inject_at:profile),characters_online_status^to:character_id^on:members.character_id^inject_at:character^show:online_status`).catch((err) => console.log(err));
-            if (!request?.data?.error) {
+            if (request?.data?.error) {
                 return console.log('outfit_members undefined');
             }
             const outfit = request.data.outfit_list[0];
