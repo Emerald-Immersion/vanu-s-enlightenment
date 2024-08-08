@@ -35,9 +35,14 @@ module.exports = {
         }
 
         async function fetchMessages() {
-            const outfit = await (await getRequest(`http://census.daybreakgames.com/s:${config.dbg_api.service_id}/get/ps2:v2/outfit?alias=${args.outfit_alias}&c:case=false&c:resolve=member(character_id)`)).data.outfit_list[0];
+            const outfit = await (await getRequest(`https://census.daybreakgames.com/s:${config.dbg_api.service_id}/get/ps2:v2/outfit?alias=${args.outfit_alias}&c:case=false&c:resolve=member(character_id)`)).data.outfit_list?.[0];
             // Send the necessary messages and save the message objects inside the returned map
-            const messages = { header: await channel.messages.fetch(args.messages.header), member0: await channel.messages.fetch(args.messages.member0), member1: await channel.messages.fetch(args.messages.member1), footer: await channel.messages.fetch(args.messages.footer) };
+            const messages = {
+                header: await channel.messages.fetch(args.messages.header),
+                member0: await channel.messages.fetch(args.messages.member0),
+                member1: await channel.messages.fetch(args.messages.member1),
+                footer: await channel.messages.fetch(args.messages.footer)
+            };
             messages.header.edit(`__Online members for **${outfit.name}**:__`);
             messages.member0.edit('Member0');
             messages.member1.edit('Member1');
@@ -58,17 +63,17 @@ module.exports = {
 
         async function messageUpdaterCensus() {
             console.log('updating online players');
-            const request = await getRequest(`http://census.daybreakgames.com/s:${config.dbg_api.service_id}/get/ps2:v2/outfit?alias=${args.outfit_alias}&c:resolve=member&c:case=false&c:show=outfit_id,name,alias,alias_lower,member_count&c:join=character^on:members.character_id^to:character_id^inject_at:character^show:faction_id'name.first'battle_rank.value'prestige_level'profile_id(profile^to:profile_id^show:profile_type_id^inject_at:profile),characters_online_status^to:character_id^on:members.character_id^inject_at:character^show:online_status`).catch((err) => console.log(err));
+            const request = await getRequest(`https://census.daybreakgames.com/s:${config.dbg_api.service_id}/get/ps2:v2/outfit?alias=${args.outfit_alias}&c:resolve=member&c:case=false&c:show=outfit_id,name,alias,alias_lower,member_count&c:join=character^on:members.character_id^to:character_id^inject_at:character^show:faction_id'name.first'battle_rank.value'prestige_level'profile_id(profile^to:profile_id^show:profile_type_id^inject_at:profile),characters_online_status^to:character_id^on:members.character_id^inject_at:character^show:online_status`).catch((err) => console.log(err));
             if (request?.data?.error) {
                 return console.log('outfit_members undefined');
             }
             const outfit = request.data.outfit_list[0];
 
-            if (outfit == undefined || outfit.members == undefined) {
+            if (!outfit && !outfit?.members) {
                 return console.log('outfit_members undefined');
             }
             const online_members = await outfit.members.filter(checkOnline);
-            if (online_members == undefined) {
+            if (!online_members) {
                 return console.log('online_members undefined');
             }
 
