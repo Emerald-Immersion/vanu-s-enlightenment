@@ -43,7 +43,7 @@ module.exports = {
                 member1: await channel.messages.fetch(args.messages.member1),
                 footer: await channel.messages.fetch(args.messages.footer)
             };
-            messages.header.edit(`__Online members for **${outfit.name}**:__`);
+            messages.header.edit(`__Online members for **${outfit?.name || "Unable to fetch name"}**:__`);
             messages.member0.edit('Member0');
             messages.member1.edit('Member1');
             messages.footer.edit('Footer');
