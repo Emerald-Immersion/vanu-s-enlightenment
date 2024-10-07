@@ -12,7 +12,7 @@ RUN apk add --update --no-cache \
     ttf-liberation
 
 ADD package*.json /tmp/
-RUN cd /tmp && npm ci
+RUN cd /tmp && npm ci --no-audit
 RUN cp -a /tmp/node_modules /usr/src/app/node_modules
 
 ## Copy built node modules and binaries without including the toolchain
